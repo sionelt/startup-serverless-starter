@@ -1,7 +1,7 @@
 export default async function () {
   return {
-    name: "acm",
+    name: "acme",
     region: "us-west-2",
-    main: "infra/index.ts",
+    main: "stacks/index.ts",
   };
 }
