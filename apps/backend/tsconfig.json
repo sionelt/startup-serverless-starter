@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["functions", "core", "test", "../.sst/types"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["./core/*"]
+    }
+  }
+}

@@ -1,0 +1,42 @@
+name: Quality checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm i
+
+      - run: pnpm check:ci
+
+  tests:
+    name: Test checks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: # Shards to splits test up into
+        shard: [1, 2, 3, 4, 5]
+      fail-fast: false
+    env:
+      SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm i
+
+      - run: pnpm test --shard $SHARD

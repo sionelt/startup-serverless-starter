@@ -1,0 +1,9 @@
+{
+  "display": "Base",
+  // https://github.com/tsconfig/bases/blob/main/bases/node18.json
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "module": "es2022",
+    "allowSyntheticDefaultImports": true
+  }
+}
