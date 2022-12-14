@@ -1,4 +1,4 @@
-name: Quality checks
+name: CI
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ jobs:
     name: Test checks
     runs-on: ubuntu-latest
     strategy:
-      matrix: # Shards to splits test up into
+      matrix:
         shard: [1, 2, 3, 4, 5]
       fail-fast: false
     env:

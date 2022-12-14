@@ -1,0 +1,48 @@
+name: AWS Account Bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: 'Package name of bootstrap to run' # name in package.json
+        required: true
+        type: choice
+        default: aws-root-account-bootstrap
+        options:
+          - aws-root-account-bootstrap
+          - aws-account-bootstrap
+      access_key_id:
+        description: 'AWS Access Key ID'
+        required: true
+      secret_access_key:
+        description: 'AWS Secret Access Key'
+        required: true
+      region:
+        description: 'AWS Region to deploy to'
+        required: true
+        type: choice
+        default: us-west-2
+        options:
+          - us-west-2
+          - us-east-2
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: ${{ inputs.region }}
+          aws-access-key-id: ${{ inputs.access_key_id }}
+          aws-secret-access-key: ${{ inputs.secret_access_key }}
+
+      - run: pnpm i
+
+      - run: pnpm --filter ${{ inputs.package_name }} deploy

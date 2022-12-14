@@ -1,0 +1,12 @@
+{
+  "name": "aws-root-account-bootstrap",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "sst deploy --stage root"
+  },
+  "devDependencies": {
+    "sst": "snapshot",
+    "aws-cdk-lib": "2.50.0"
+  }
+}
