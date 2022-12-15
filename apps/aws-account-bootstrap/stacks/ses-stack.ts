@@ -8,6 +8,7 @@ import {Dns} from '../../../aws.config'
 export function Ses({stack}: StackContext) {
   /**
    * Create a default Configuration Set for the domain
+   * @link https://docs.aws.amazon.com/ses/latest/dg/using-configuration-sets.html
    */
   const configurationSet = new aws_ses.ConfigurationSet(
     stack,
@@ -20,6 +21,10 @@ export function Ses({stack}: StackContext) {
     }
   )
 
+  /**
+   * Setup Cloudwatch as destination to track email engagement metrics
+   * @link https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html
+   */
   new aws_ses.CfnConfigurationSetEventDestination(
     stack,
     'ConfigurationSetEventDestination',
@@ -40,8 +45,8 @@ export function Ses({stack}: StackContext) {
         ],
         cloudWatchDestination: {
           /**
-           * Use MAIL FROM tag to track metrics events
-           * SES auto tag email with FAIL FROM
+           * Use MAIL FROM tag to track metrics
+           * SES auto tag email with MAIL FROM
            * @link https://aws.amazon.com/blogs/messaging-and-targeting/introducing-sending-metrics/
            */
           dimensionConfigurations: [
