@@ -7,7 +7,7 @@ import {StackContext} from 'sst/constructs'
  * AWS services from within Github Actions.
  * @link https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
  */
-export function GithubActions({stack}: StackContext) {
+export function GithubOidc({stack}: StackContext) {
   const domain = 'token.actions.githubusercontent.com'
 
   /**
@@ -16,7 +16,7 @@ export function GithubActions({stack}: StackContext) {
   const githubRepository = process.env.GITHUB_REPOSITORY
   if (!githubRepository) {
     throw new Error(
-      `Env GITHUB_REPOSITORY is required to create Github OpenID provider in IAM`
+      `Env variable "GITHUB_REPOSITORY" is required to create Github OIDC provider in IAM`
     )
   }
 
