@@ -9,7 +9,7 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**"]
     },
-    "packages/aws-account-infra#deploy": {
+    "packages/aws-account-infra#bootstrap": {
       "dependsOn": ["$GITHUB_REPOSITORY"],
       "outputs": []
     }

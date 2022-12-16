@@ -48,4 +48,4 @@ jobs:
 
       - run: pnpm i
 
-      - run: pnpm --filter ${{ inputs.package_name }} deploy
+      - run: pnpm --filter ${{ inputs.package_name }} bootstrap

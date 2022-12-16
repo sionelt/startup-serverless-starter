@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "sst deploy --stage account"
+    "bootstrap": "sst deploy --stage account"
   },
   "devDependencies": {
     "sst": "snapshot",
