@@ -26,7 +26,7 @@ importers:
       lint-staged: 13.1.0
       prettier: 2.8.1
       prisma: 4.7.1
-      sst: 0.0.0-20221212154601
+      sst: 0.0.0-20221215173430
       tsx: 3.12.1
       turbo: 1.6.3
       typescript: 4.9.4
@@ -34,9 +34,35 @@ importers:
 
   apps/aws-account-bootstrap:
     specifiers:
+      aws-cdk-lib: 2.50.0
       sst: snapshot
     devDependencies:
-      sst: 0.0.0-20221212154601
+      aws-cdk-lib: 2.50.0
+      sst: 0.0.0-20221215173430
+
+  apps/aws-organization-bootstrap:
+    specifiers:
+      aws-cdk-lib: 2.50.0
+      sst: snapshot
+    devDependencies:
+      aws-cdk-lib: 2.50.0
+      sst: 0.0.0-20221215173430
+
+  apps/aws-region-bootstrap:
+    specifiers:
+      aws-cdk-lib: 2.50.0
+      sst: snapshot
+    devDependencies:
+      aws-cdk-lib: 2.50.0
+      sst: 0.0.0-20221215173430
+
+  apps/aws-root-account-bootstrap:
+    specifiers:
+      aws-cdk-lib: 2.50.0
+      sst: snapshot
+    devDependencies:
+      aws-cdk-lib: 2.50.0
+      sst: 0.0.0-20221215173430
 
   apps/backend:
     specifiers:
@@ -2683,6 +2709,23 @@ packages:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
     engines: {node: '>= 0.4'}
     dev: true
+
+  /aws-cdk-lib/2.50.0:
+    resolution: {integrity: sha512-deDbZTI7oyu3rqUyqjwhP6tnUO8MD70lE98yR65xiYty4yXBpsWKbeH3s1wNLpLAWS3hWJYyMtjZ4ZfC35NtVg==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      constructs: ^10.0.0
+    dev: true
+    bundledDependencies:
+      - '@balena/dockerignore'
+      - case
+      - fs-extra
+      - ignore
+      - jsonschema
+      - minimatch
+      - punycode
+      - semver
+      - yaml
 
   /aws-cdk-lib/2.50.0_constructs@10.1.156:
     resolution: {integrity: sha512-deDbZTI7oyu3rqUyqjwhP6tnUO8MD70lE98yR65xiYty4yXBpsWKbeH3s1wNLpLAWS3hWJYyMtjZ4ZfC35NtVg==}
@@ -5745,16 +5788,13 @@ packages:
     resolution: {integrity: sha512-UUFYD2oWbNwULH6WoVtLUOw8ch586B+HUqcsAjjjeoBQAM1bD4wZRXu01koaxyd8UeYpybWqW4h+lO1Okv40Tg==}
     dev: true
 
-  /sst/0.0.0-20221212154601:
-    resolution: {integrity: sha512-64rY/UJNnmOkZqWmiWpTWodGJxK46rmpX5F7n/Z0MeecjVQbPbsm85WK30W5dXbZbaS2i2hV9c/EdV2dYU9r/w==}
+  /sst/0.0.0-20221215173430:
+    resolution: {integrity: sha512-G3H/kxA9zAljAqR+lJSSW91VmTinbyVJx6KRsKECSTnw1tOlMlMDep/iWtV+ctKhqKKplc5wpO7coE6XvZp8eg==}
     hasBin: true
     peerDependencies:
-      '@babel/core': ^7.0.0-0
       '@sls-next/lambda-at-edge': ^3.7.0
       graphql: ^16.5.0
     peerDependenciesMeta:
-      '@babel/core':
-        optional: true
       '@sls-next/lambda-at-edge':
         optional: true
       graphql:
@@ -5780,6 +5820,7 @@ packages:
       '@aws-sdk/middleware-signing': 3.226.0
       '@aws-sdk/signature-v4-crt': 3.226.0
       '@aws-sdk/smithy-client': 3.226.0
+      '@babel/core': 7.13.10
       '@babel/generator': 7.20.5
       '@trpc/server': 9.16.0
       aws-cdk: 2.50.0

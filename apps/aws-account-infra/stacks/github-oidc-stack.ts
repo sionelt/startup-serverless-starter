@@ -70,6 +70,6 @@ export function GithubOidc({stack}: StackContext) {
   })
 
   stack.addOutputs({
-    GithubActionsAssumedRole: role.roleName,
+    GithubOidcRoleName: role.roleName,
   })
 }

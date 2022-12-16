@@ -1,9 +1,9 @@
 {
-  "name": "aws-root-account-bootstrap",
+  "name": "aws-region-infra",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "sst deploy --stage root"
+    "deploy": "sst deploy --stage region"
   },
   "devDependencies": {
     "sst": "snapshot",

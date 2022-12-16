@@ -1,9 +1,9 @@
 {
-  "name": "aws-account-bootstrap",
+  "name": "aws-root-organization-infra",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "sst deploy --stage account"
+    "deploy": "sst deploy --stage root"
   },
   "devDependencies": {
     "sst": "snapshot",

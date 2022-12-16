@@ -1,16 +1,18 @@
-name: AWS Account Bootstrap
+name: AWS Infra Bootstrap
 
 on:
   workflow_dispatch:
     inputs:
       package_name:
-        description: 'Package name of bootstrap to run' # name in package.json
+        description: 'Package name of app to bootstrap' # name in package.json
         required: true
         type: choice
-        default: aws-root-account-bootstrap
+        default: aws-root-account-infra
         options:
-          - aws-root-account-bootstrap
-          - aws-account-bootstrap
+          - aws-organization-infra
+          - aws-root-account-infra
+          - aws-account-infra
+          - aws-region-infra
       access_key_id:
         description: 'AWS Access Key ID'
         required: true
@@ -25,6 +27,7 @@ on:
         options:
           - us-west-2
           - us-east-2
+          - us-east-1
 
 jobs:
   bootstrap:
