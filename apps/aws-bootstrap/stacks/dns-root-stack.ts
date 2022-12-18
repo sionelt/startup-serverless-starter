@@ -2,6 +2,9 @@ import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
 import {AwsConfig} from '../../../aws.config'
 
+/**
+ * Create DNS infra in Root Account
+ */
 export function DnsRoot({stack}: StackContext) {
   const apexZone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
     zoneName: AwsConfig.dns.apex,
@@ -18,7 +21,7 @@ export function DnsRoot({stack}: StackContext) {
    */
 
   /**
-   * TODO: Add tokens Ses stack's CNAME outputs, once its bootstrap in each supported region.
+   * TODO: Add tokens from Ses stack's CNAME outputs, once its bootstrap in each supported region.
    */
   const dkimTokensByRegion = {
     [AwsConfig.regions.support.usWest2]: [],

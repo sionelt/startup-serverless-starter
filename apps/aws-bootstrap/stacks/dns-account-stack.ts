@@ -1,58 +1,42 @@
 import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
 import {AwsConfig} from '../../../aws.config'
+import {joinHostedZone} from '../../../aws.utils'
 
+/**
+ * Delegate subdomains cross account from the root account by creating NS record
+ * pointing to each subdomain's Hosted Zone in each account.
+ * @link https://theburningmonk.com/2021/05/how-to-manage-route53-hosted-zones-in-a-multi-account-environment/
+ */
 export function DnsAccount({stack}: StackContext) {
-  const apexZone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
-    zoneName: AwsConfig.dns.apex,
-    crossAccountZoneDelegationRoleName:
-      AwsConfig.dns.crossAccountDelegationRole,
-    crossAccountZoneDelegationPrincipal: new aws_iam.AccountPrincipal(
-      AwsConfig.accounts.root.id
-    ),
+  const delegationRoleArn = stack.formatArn({
+    region: '', // IAM is global
+    service: 'iam',
+    resource: 'role',
+    account: AwsConfig.accounts.root.id,
+    resourceName: AwsConfig.dns.crossAccountDelegationRole,
   })
+  const delegationRole = aws_iam.Role.fromRoleArn(
+    stack,
+    'DelegationRole',
+    delegationRoleArn
+  )
 
-  /**
-   * Add records for SES Domain Identity & MAIL FROM verfications
-   * @file /apps/aws-region-infra/stacks/ses-stack.ts
-   */
+  for (const subdomain of AwsConfig.dns.subdomains) {
+    const delegatedZone = new aws_route53.PublicHostedZone(
+      stack,
+      `${subdomain}HostedZone`,
+      {zoneName: joinHostedZone(stack.account, subdomain)}
+    )
 
-  /**
-   * TODO: Add tokens from aws-region-infra's Ses stack's CNAME outputs,
-   * once its bootstrap in each supported region.
-   */
-  const dkimTokensByRegion = {
-    [AwsConfig.regions.support.usWest2]: [],
-    [AwsConfig.regions.support.usEast2]: [],
+    new aws_route53.CrossAccountZoneDelegationRecord(
+      stack,
+      `${subdomain}DelegateRecord`,
+      {
+        delegationRole,
+        delegatedZone,
+        parentHostedZoneName: AwsConfig.dns.apex,
+      }
+    )
   }
-
-  for (const region of Object.values(AwsConfig.regions.support)) {
-    dkimTokensByRegion[region].forEach((token, i) => {
-      new aws_route53.CnameRecord(stack, `DkimCnameRecord${region}${i}`, {
-        zone: apexZone,
-        recordName: `${token}._domainkey.${AwsConfig.dns.apex}`,
-        domainName: `${token}.dkim.amazonses.com`,
-        comment: `SES DKIM Verification for ${region}`,
-      })
-    })
-
-    new aws_route53.MxRecord(stack, 'MailFromMxRecord', {
-      zone: apexZone,
-      recordName: AwsConfig.dns.apex,
-      comment: `SES MAIL FROM Verfication for ${region}`,
-      values: [
-        {
-          priority: 10,
-          hostName: `feedback-smtp.${region}.amazonses.com`,
-        },
-      ],
-    })
-  }
-
-  new aws_route53.TxtRecord(stack, 'MailFromTxtRecord', {
-    zone: apexZone,
-    recordName: AwsConfig.dns.apex,
-    comment: 'SES MAIL FROM Verfication',
-    values: [`"v=spf1 include:amazonses.com ~all"`],
-  })
 }

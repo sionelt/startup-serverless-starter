@@ -9,8 +9,8 @@ import {Ses} from './ses-stack'
 
 export default function (app: App) {
   switch (app.stage) {
-    case AwsConfig.stages.bootstrap.root:
-      return rootAccountStacks(app)
+    case AwsConfig.stages.bootstrap.organization:
+      return organizationStacks(app)
     case AwsConfig.stages.bootstrap.account:
       return accountStacks(app)
     case AwsConfig.stages.bootstrap.region:
@@ -20,7 +20,7 @@ export default function (app: App) {
   }
 }
 
-function rootAccountStacks(app: App) {
+function organizationStacks(app: App) {
   if (!AwsUtils.isRootAccount(app.account)) {
     throw new Error(
       `This infra can only be deployed into Root Account, not ${app.account}`

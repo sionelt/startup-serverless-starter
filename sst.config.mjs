@@ -1,7 +1,9 @@
+import {AwsConfig} from './aws.config'
+
 export default async function () {
   return {
-    name: "acme",
-    region: "us-west-2",
+    name: "to",
+    region: AwsConfig.regions.main,
     main: "stacks/index.ts",
   };
 }

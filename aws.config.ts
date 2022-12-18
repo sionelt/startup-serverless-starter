@@ -54,7 +54,7 @@ export const AwsConfig = {
       dev: 'dev',
     },
     bootstrap: {
-      root: 'root',
+      organization: 'organization',
       account: 'account',
       region: 'region',
     },

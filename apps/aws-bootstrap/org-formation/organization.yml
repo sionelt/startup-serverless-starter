@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09-OC'
+Description: TheOffice AWS organization
+
+Organization:
+  RootAccount:
+    Type: OC::ORG::MasterAccount
+    Properties:
+      AccountName: TheOffice Root
+      RootEmail: f3i5y0h1s4q9e9l1@acme.slack.com
+      AccountId: '917902212075'
+
+  OrganizationRoot:
+    Type: OC::ORG::OrganizationRoot
+    Properties:
+      ServiceControlPolicies:
+        - !Ref DenyChangeOfOrgRoleSCP
+        - !Ref RestrictUnusedRegionsSCP
+
+  DevelopmentAccount:
+    Type: OC::ORG::Account
+    Properties:
+      AccountName: TheOffice Development
+      RootEmail: t9r9n7l1k5i9h4f5@acme.slack.com
+
+  ProductionAccount:
+    Type: OC::ORG::Account
+    Properties:
+      AccountName: TheOffice Production
+      RootEmail: f2s8i2d0z8n6j5n2@acme.slack.com
+
+  DenyChangeOfOrgRoleSCP:
+    Type: OC::ORG::ServiceControlPolicy
+    Properties:
+      PolicyName: DenyChangeOfOrgRole
+      Description: Deny changing the IAM role used for organization access
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyChangeOfOrgRole
+            Effect: Deny
+            Action: # All actions except these:
+              - 'iam:Attach*'
+              - 'iam:Create*'
+              - 'iam:Delete*'
+              - 'iam:Detach*'
+              - 'iam:PutRole*'
+              - 'iam:Update*'
+            Resource:
+              - 'arn:aws:iam::*:role/OrganizationAccountAccessRole'
+
+  # Service Control Policies
+  # Apply to all accounts within the organization
+
+  RestrictUnusedRegionsSCP:
+    Type: OC::ORG::ServiceControlPolicy
+    Properties:
+      PolicyName: RestrictUnsupportedRegions
+      Description: Restrict unsupported regions
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyUnsupportedRegions
+            Effect: Deny
+            NotAction:
+              - 'cloudfront:*'
+              - 'iam:*'
+              - 'route53:*'
+              - 'support:*'
+              - 'budgets:*'
+            Resource: '*'
+            Condition:
+              StringNotEquals:
+                'aws:RequestedRegion':
+                  - us-west-2
+                  - us-east-2
+
+  # User Password Policy
+
+  PasswordPolicy:
+    Type: OC::ORG::PasswordPolicy
+    Properties:
+      MaxPasswordAge: 30
+      MinimumPasswordLength: 12
+      RequireLowercaseCharacters: true
+      RequireNumbers: true
+      RequireSymbols: true
+      RequireUppercaseCharacters: true
+      PasswordReusePrevention: 5
+      AllowUsersToChangePassword: true

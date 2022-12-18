@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "bootstrap": "sst deploy"
+    "bootstrap": "tsx bootstrap.ts"
   },
   "devDependencies": {
     "sst": "snapshot",

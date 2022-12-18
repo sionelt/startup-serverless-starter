@@ -1,22 +1,22 @@
-name: AWS Bootstrap
+name: AWS Infrastructure Bootstrap
 
 on:
   workflow_dispatch:
     inputs:
-      stage:
-        description: 'Stage of bootstrap to perform' # name in package.json
+      level:
+        description: 'stage of bootstrap to perform'
         required: true
         type: choice
-        default: root-account
+        default: organization
         options:
-          - root-account
+          - organization
           - account
           - region
       access_key_id:
-        description: 'AWS Access Key ID'
+        description: 'AWS Admin Access Key ID'
         required: true
       secret_access_key:
-        description: 'AWS Secret Access Key'
+        description: 'AWS Admin Secret Access Key'
         required: true
       region:
         description: 'AWS Region to deploy to'
@@ -47,10 +47,10 @@ jobs:
       - run: pnpm i
 
       - name: 'Bootstrap Organization'
-        if: ${{ inputs.package_name == 'aws-root-account-infra' }}
+        if: ${{ inputs.stage == 'organization' }}
         run: |
           aws organizations create-organization --feature-set ALL
           aws enable-sso
-          pnpm run org-formation
+          pnpm run org-formation:init
 
       - run: pnpm --filter aws-bootstrap bootstrap --stage ${{ inputs.stage }}

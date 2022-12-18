@@ -24,6 +24,7 @@ export function Cdn({stack}: StackContext) {
         publicReadAccess: false,
         eventBridgeEnabled: true,
         bucketKeyEnabled: true,
+        versioned: true,
         encryption: aws_s3.BucketEncryption.KMS_MANAGED,
         blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
         cors: [
@@ -80,16 +81,16 @@ export function Cdn({stack}: StackContext) {
   const hostedZone = aws_route53.HostedZone.fromLookup(stack, 'HostedZone', {
     domainName,
   })
-
   const certificate = new aws_certificatemanager.DnsValidatedCertificate(
     stack,
     'Certificate',
     {
       domainName,
       hostedZone,
-      region: AwsConfig.regions.usEast1, // Required to be created in us-east-1
+      region: AwsConfig.regions.usEast1, // Required to be in us-east-1
     }
   )
+
   const distro = new aws_cloudfront.Distribution(stack, 'Distro', {
     certificate,
     defaultBehavior,
