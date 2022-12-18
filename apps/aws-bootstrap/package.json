@@ -1,0 +1,17 @@
+{
+  "name": "aws-bootstrap",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "bootstrap": "sst deploy"
+  },
+  "devDependencies": {
+    "sst": "snapshot",
+    "aws-organization-formation": "^1.0.4",
+    "aws-cdk-lib": "2.50.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-identitystore": "^3.231.0",
+    "@aws-sdk/client-organizations": "^3.231.0"
+  }
+}

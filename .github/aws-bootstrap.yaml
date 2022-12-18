@@ -1,18 +1,17 @@
-name: AWS Infra Bootstrap
+name: AWS Bootstrap
 
 on:
   workflow_dispatch:
     inputs:
-      package_name:
-        description: 'Package name of app to bootstrap' # name in package.json
+      stage:
+        description: 'Stage of bootstrap to perform' # name in package.json
         required: true
         type: choice
-        default: aws-root-account-infra
+        default: root-account
         options:
-          - aws-organization-infra
-          - aws-root-account-infra
-          - aws-account-infra
-          - aws-region-infra
+          - root-account
+          - account
+          - region
       access_key_id:
         description: 'AWS Access Key ID'
         required: true
@@ -27,7 +26,6 @@ on:
         options:
           - us-west-2
           - us-east-2
-          - us-east-1
 
 jobs:
   bootstrap:
@@ -48,4 +46,11 @@ jobs:
 
       - run: pnpm i
 
-      - run: pnpm --filter ${{ inputs.package_name }} bootstrap
+      - name: 'Bootstrap Organization'
+        if: ${{ inputs.package_name == 'aws-root-account-infra' }}
+        run: |
+          aws organizations create-organization --feature-set ALL
+          aws enable-sso
+          pnpm run org-formation
+
+      - run: pnpm --filter aws-bootstrap bootstrap --stage ${{ inputs.stage }}

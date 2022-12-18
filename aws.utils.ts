@@ -1,6 +1,15 @@
 import {aws_logs} from 'aws-cdk-lib'
 import {AwsConfig, MainStage, SubDomain} from './aws.config'
 
+export * as AwsUtils from './aws.utils'
+
+/**
+ * Is aws account root
+ * @param accountId aws account id
+ */
+export const isRootAccount = (accountId: string) =>
+  accountId !== AwsConfig.accounts.root.id
+
 /**
  * Join Route53 Hosted Zone name
  * @param accountId aws account id
@@ -10,9 +19,9 @@ export const joinHostedZone = (accountId: string, sub: SubDomain) => {
   const domain = `${sub}.${AwsConfig.dns.apex}`
 
   switch (accountId) {
-    case AwsConfig.accounts.production:
+    case AwsConfig.accounts.production.id:
       return domain
-    case AwsConfig.accounts.development:
+    case AwsConfig.accounts.development.id:
       return `dev-${domain}`
     default:
       throw new Error(`Unrecognized aws account: ${accountId}`)

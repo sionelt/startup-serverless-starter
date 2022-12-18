@@ -2,23 +2,23 @@ import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
 import {AwsConfig} from '../../../aws.config'
 
-export function HostedZone({stack}: StackContext) {
+export function DnsAccount({stack}: StackContext) {
   const apexZone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
     zoneName: AwsConfig.dns.apex,
     crossAccountZoneDelegationRoleName:
       AwsConfig.dns.crossAccountDelegationRole,
     crossAccountZoneDelegationPrincipal: new aws_iam.AccountPrincipal(
-      AwsConfig.accounts.root
+      AwsConfig.accounts.root.id
     ),
   })
 
   /**
    * Add records for SES Domain Identity & MAIL FROM verfications
-   * @file /apps/aws-region-bootstrap/stacks/ses-stack.ts
+   * @file /apps/aws-region-infra/stacks/ses-stack.ts
    */
 
   /**
-   * TODO: Add tokens from aws-region-bootstrap's Ses stack's CNAME outputs,
+   * TODO: Add tokens from aws-region-infra's Ses stack's CNAME outputs,
    * once its bootstrap in each supported region.
    */
   const dkimTokensByRegion = {

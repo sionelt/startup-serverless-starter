@@ -8,4 +8,4 @@ This starter template demonstate how to easily build a startup on AWS, fully lev
 - Package manager: [pnpm](https://pnpm.io/)
 - Monorepo: [Turborepo](https://turbo.build/repo)
 - Infrastructure As Code (IaC): [SST](https://sst.dev) & [AWS CDK v2](https://docs.aws.amazon.com/cdk/api/v2/)
-- CICD pipeline: [Github Actions](https://github.com/features/actions)
+- CI/CD pipeline: [Github Actions](https://github.com/features/actions)

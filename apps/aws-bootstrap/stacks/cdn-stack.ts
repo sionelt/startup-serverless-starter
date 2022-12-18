@@ -9,7 +9,7 @@ import {
 } from 'aws-cdk-lib'
 import {Bucket, StackContext} from 'sst/constructs'
 import {AwsConfig} from '../../../aws.config'
-import {joinHostedZone} from '../../../aws.utils'
+import {AwsUtils} from '../../../aws.utils'
 
 export function Cdn({stack}: StackContext) {
   /**
@@ -76,17 +76,18 @@ export function Cdn({stack}: StackContext) {
    * Custom domain
    */
 
-  const domainName = joinHostedZone(stack.account, 'cdn')
-  const zone = aws_route53.HostedZone.fromLookup(stack, 'HostedZone', {
+  const domainName = AwsUtils.joinHostedZone(stack.account, 'cdn')
+  const hostedZone = aws_route53.HostedZone.fromLookup(stack, 'HostedZone', {
     domainName,
   })
 
-  const certificate = new aws_certificatemanager.Certificate(
+  const certificate = new aws_certificatemanager.DnsValidatedCertificate(
     stack,
     'Certificate',
     {
       domainName,
-      validation: aws_certificatemanager.CertificateValidation.fromDns(zone),
+      hostedZone,
+      region: AwsConfig.regions.usEast1, // Required to be created in us-east-1
     }
   )
   const distro = new aws_cloudfront.Distribution(stack, 'Distro', {
@@ -97,20 +98,20 @@ export function Cdn({stack}: StackContext) {
   })
 
   new aws_route53.ARecord(stack, 'ARecord', {
-    zone,
+    zone: hostedZone,
     recordName: domainName,
     target: aws_route53.RecordTarget.fromAlias(
       new aws_route53_targets.CloudFrontTarget(distro)
     ),
   })
   new aws_route53.AaaaRecord(stack, 'AliasRecord', {
-    zone,
+    zone: hostedZone,
     recordName: domainName,
     target: aws_route53.RecordTarget.fromAlias(
       new aws_route53_targets.CloudFrontTarget(distro)
     ),
   })
-  // TODO: Can output be imported across regions?
+
   stack.addOutputs({
     CdnUrl: `https://${domainName}`,
     CdnBucketName: bucket.bucketName,
