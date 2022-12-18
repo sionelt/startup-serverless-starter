@@ -6,6 +6,7 @@ import {DnsAccount} from './dns-account-stack'
 import {DnsRoot} from './dns-root-stack'
 import {GithubOidc} from './github-oidc-stack'
 import {Ses} from './ses-stack'
+import {Sso} from './sso-stack'
 
 export default function (app: App) {
   switch (app.stage) {
@@ -26,8 +27,7 @@ function organizationStacks(app: App) {
       `This infra can only be deployed into Root Account, not ${app.account}`
     )
   }
-
-  app.stack(DnsRoot)
+  app.stack(Sso).stack(DnsRoot)
 }
 
 function accountStacks(app: App) {

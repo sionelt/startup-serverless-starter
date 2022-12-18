@@ -64,9 +64,8 @@ Organization:
   ####################################
   ## Service Control Policies       ##
   ####################################
-  # https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
   #TODO:
-  # - Prevent creating iam users
+  # - Prevent creating iam users in each accounts
 
   RestrictUnsupportedRegionsSCP:
     Type: OC::ORG::ServiceControlPolicy

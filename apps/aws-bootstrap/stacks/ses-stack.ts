@@ -72,7 +72,7 @@ export function Ses({stack}: StackContext) {
   })
 
   /**
-   * Output DNS records to be added manually to Apex's Hosted Zone in Root Account
+   * Output DNS records to be added manually to Apex's Hosted Zone in dns-root-stack
    */
   identity.dkimRecords.forEach((token, i) => {
     stack.addOutputs({

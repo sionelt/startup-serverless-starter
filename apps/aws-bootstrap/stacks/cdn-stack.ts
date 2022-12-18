@@ -42,7 +42,7 @@ export function Cdn({stack}: StackContext) {
    * Default Behavior for private assets requires URLs to be signed with a key group
    * Cloudfront validates the signed url against this key group on requests.
    * @link Private Content: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html
-   * @link Key Groups generation: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront-readme.html#keygroup--publickey-api
+   * @link Key Group generation: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront-readme.html#keygroup--publickey-api
    */
 
   const publicKey = new aws_cloudfront.PublicKey(stack, 'PublicKey', {

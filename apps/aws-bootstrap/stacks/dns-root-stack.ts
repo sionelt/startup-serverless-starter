@@ -41,7 +41,7 @@ export function DnsRoot({stack}: StackContext) {
     new aws_route53.MxRecord(stack, 'MailFromMxRecord', {
       zone: apexZone,
       recordName: AwsConfig.dns.apex,
-      comment: `SES MAIL FROM Verfication for ${region}`,
+      comment: `SES MAIL FROM Verification for ${region}`,
       values: [
         {
           priority: 10,
@@ -54,7 +54,7 @@ export function DnsRoot({stack}: StackContext) {
   new aws_route53.TxtRecord(stack, 'MailFromTxtRecord', {
     zone: apexZone,
     recordName: AwsConfig.dns.apex,
-    comment: 'SES MAIL FROM Verfication',
+    comment: 'SES MAIL FROM Verification',
     values: [`"v=spf1 include:amazonses.com ~all"`],
   })
 }
