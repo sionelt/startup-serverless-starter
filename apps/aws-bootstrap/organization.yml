@@ -2,31 +2,44 @@ AWSTemplateFormatVersion: '2010-09-09-OC'
 Description: TheOffice AWS organization
 
 Organization:
-  RootAccount:
-    Type: OC::ORG::MasterAccount
-    Properties:
-      AccountName: TheOffice Root
-      RootEmail: f3i5y0h1s4q9e9l1@acme.slack.com
-      AccountId: '917902212075'
+  ####################################
+  ## Organization Root              ##
+  ####################################
 
   OrganizationRoot:
     Type: OC::ORG::OrganizationRoot
     Properties:
       ServiceControlPolicies:
         - !Ref DenyChangeOfOrgRoleSCP
-        - !Ref RestrictUnusedRegionsSCP
+        - !Ref RestrictUnsupportedRegionsSCP
+
+  ####################################
+  ## Accounts                       ##
+  ####################################
+
+  RootAccount:
+    Type: OC::ORG::MasterAccount
+    Properties:
+      AccountName: TheOffice Root
+      RootEmail: f3i5y0h1s4q9e9l1@acme.slack.com
+      AccountId: '917902212075'
+      Alias: the-office-root
 
   DevelopmentAccount:
     Type: OC::ORG::Account
     Properties:
       AccountName: TheOffice Development
       RootEmail: t9r9n7l1k5i9h4f5@acme.slack.com
+      Alias: the-office-dev
+      PasswordPolicy: !Ref PasswordPolicy
 
   ProductionAccount:
     Type: OC::ORG::Account
     Properties:
       AccountName: TheOffice Production
       RootEmail: f2s8i2d0z8n6j5n2@acme.slack.com
+      Alias: the-office-prod
+      PasswordPolicy: !Ref PasswordPolicy
 
   DenyChangeOfOrgRoleSCP:
     Type: OC::ORG::ServiceControlPolicy
@@ -48,10 +61,14 @@ Organization:
             Resource:
               - 'arn:aws:iam::*:role/OrganizationAccountAccessRole'
 
-  # Service Control Policies
-  # Apply to all accounts within the organization
+  ####################################
+  ## Service Control Policies       ##
+  ####################################
+  # https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
+  #TODO:
+  # - Prevent creating iam users
 
-  RestrictUnusedRegionsSCP:
+  RestrictUnsupportedRegionsSCP:
     Type: OC::ORG::ServiceControlPolicy
     Properties:
       PolicyName: RestrictUnsupportedRegions
@@ -74,7 +91,9 @@ Organization:
                   - us-west-2
                   - us-east-2
 
-  # User Password Policy
+  ####################################
+  ## User Password Policy           ##
+  ####################################
 
   PasswordPolicy:
     Type: OC::ORG::PasswordPolicy

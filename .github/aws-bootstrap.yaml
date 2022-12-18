@@ -46,11 +46,4 @@ jobs:
 
       - run: pnpm i
 
-      - name: 'Bootstrap Organization'
-        if: ${{ inputs.stage == 'organization' }}
-        run: |
-          aws organizations create-organization --feature-set ALL
-          aws enable-sso
-          pnpm run org-formation:init
-
       - run: pnpm --filter aws-bootstrap bootstrap --stage ${{ inputs.stage }}

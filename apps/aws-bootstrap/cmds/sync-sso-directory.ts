@@ -1,7 +1,9 @@
+#!/usr/bin/env node
 import {
   CreateGroupCommand,
   CreateGroupMembershipCommand,
   CreateUserCommand,
+  DeleteGroupCommand,
   DeleteUserCommand,
   IdentitystoreClient,
   ListGroupMembershipsCommand,
@@ -9,57 +11,59 @@ import {
   ListUsersCommand,
   UpdateUserCommand,
 } from '@aws-sdk/client-identitystore'
-import {
-  CreateOrganizationCommand,
-  DescribeOrganizationCommand,
-  OrganizationFeatureSet,
-  OrganizationsClient,
-} from '@aws-sdk/client-organizations'
-import {partition, some} from 'lodash-es'
-import {AwsConfig, SsoGroup, SsoUser} from '../../aws.config'
+import yargs from 'yargs'
+import {AwsConfig, SsoGroup, SsoUser} from '../../../aws.config'
 
+/** Command Options */
+const argv = yargs(process.argv)
+  .option('identity-store-id', {
+    type: 'string',
+    describe: 'SSO/IdentityStore ID',
+  })
+  .help()
+  .parseSync()
 type IdentiyStoreGroup = {
-  id: string
+  groupId: string
   displayName: SsoGroup
 }
-type IdentityStoreUser = SsoUser & {id: string}
+type IdentityStoreUser = SsoUser & {userId: string}
 
-const orgClient = new OrganizationsClient({})
 const isClient = new IdentitystoreClient({})
 
-export async function bootstrap() {
-  await createOrganization()
-  const identityStoreId = await enableIdentityStore()
-  const groups = await createIdentityStoreGroups(identityStoreId)
-  const users = await syncIdentityStoreUsers(identityStoreId)
-  await addIdentityStoreUsersToGroup(identityStoreId, groups, users)
+/**
+ * Sync SSO/Identity Center directory
+ */
+export async function syncSso({identityStoreId}: typeof argv) {
+  if (!identityStoreId) {
+    throw new Error(`Argument '--identity-store-id' is required`)
+  }
+
+  const groups = await syncGroups(identityStoreId)
+  const users = await syncUsers(identityStoreId)
+  await syncUsersToGroup(identityStoreId, groups, users)
 }
 
-async function createOrganization() {
-  const {Organization} = await orgClient.send(
-    new DescribeOrganizationCommand({})
-  )
-  if (Organization) return Organization
-
-  const res = await orgClient.send(
-    new CreateOrganizationCommand({
-      FeatureSet: OrganizationFeatureSet.ALL,
-    })
-  )
-  return res.Organization
-}
-
-async function enableIdentityStore() {
-  return ''
-}
-
-async function createIdentityStoreGroups(
+async function syncGroups(
   IdentityStoreId: string
 ): Promise<IdentiyStoreGroup[]> {
   const {Groups: existingGroups = []} = await isClient.send(
     new ListGroupsCommand({IdentityStoreId})
   )
 
+  // Remove groups not found
+  await Promise.all(
+    existingGroups
+      .filter((eg) =>
+        AwsConfig.sso.groups.some((name) => name !== eg.DisplayName)
+      )
+      .map(async (eg) =>
+        isClient.send(
+          new DeleteGroupCommand({IdentityStoreId, GroupId: eg.GroupId})
+        )
+      )
+  )
+
+  // Create new groups
   return Promise.all(
     AwsConfig.sso.groups.map(async (displayName) => {
       const matched = existingGroups.find((g) => g.DisplayName == displayName)
@@ -73,26 +77,25 @@ async function createIdentityStoreGroups(
             Description: `${displayName} group`,
           })
         )
-        if (!res.GroupId)
-          throw new Error(
-            `Failed to create IdentityStore group for ${displayName}`
-          )
+        if (!res.GroupId) {
+          throw new Error(`Failed to create IdentityStore group ${displayName}`)
+        }
         groupId = res.GroupId
       }
 
-      return {id: groupId, displayName}
+      return {groupId, displayName}
     })
   )
 }
 
-async function syncIdentityStoreUsers(
+async function syncUsers(
   IdentityStoreId: string
 ): Promise<IdentityStoreUser[]> {
   const {Users: existingUsers = []} = await isClient.send(
     new ListUsersCommand({IdentityStoreId})
   )
 
-  // Remove users
+  // Remove users not found
   await Promise.all(
     existingUsers
       .filter((eu) =>
@@ -121,14 +124,6 @@ async function syncIdentityStoreUsers(
                 AttributePath: 'Emails',
                 AttributeValue: [{Value: u.email, Primary: true, Type: 'work'}],
               },
-              {AttributePath: 'DisplayName', AttributeValue: u.givenName},
-              {
-                AttributePath: 'Name',
-                AttributeValue: {
-                  GivenName: u.givenName,
-                  FamilyName: u.familyName,
-                },
-              },
             ],
           })
         )
@@ -142,17 +137,18 @@ async function syncIdentityStoreUsers(
             Emails: [{Value: u.email, Primary: true, Type: 'work'}],
           })
         )
-        if (!res.UserId)
+        if (!res.UserId) {
           throw new Error(`Failed to create IdentityStore user ${u.username}`)
+        }
         userId = res.UserId
       }
 
-      return {id: userId, ...u}
+      return {userId, ...u}
     })
   )
 }
 
-async function addIdentityStoreUsersToGroup(
+async function syncUsersToGroup(
   IdentityStoreId: string,
   groups: IdentiyStoreGroup[],
   users: IdentityStoreUser[]
@@ -163,14 +159,14 @@ async function addIdentityStoreUsersToGroup(
         const {GroupMemberships: existingMembers = []} = await isClient.send(
           new ListGroupMembershipsCommand({
             IdentityStoreId,
-            GroupId: group.id,
+            GroupId: group.groupId,
           })
         )
         const matchedUser = users.find((u) => u.username === user.username)
         if (!matchedUser) throw new Error(`User ${user.username} not found`)
 
         const matchedMember = existingMembers.find(
-          (m) => m.MemberId?.UserId === matchedUser.id
+          (m) => m.MemberId?.UserId === matchedUser.userId
         )
         let membershipId = matchedMember?.MembershipId
 
@@ -178,14 +174,15 @@ async function addIdentityStoreUsersToGroup(
           const res = await isClient.send(
             new CreateGroupMembershipCommand({
               IdentityStoreId,
-              GroupId: group.id,
-              MemberId: {UserId: matchedUser.id},
+              GroupId: group.groupId,
+              MemberId: {UserId: matchedUser.userId},
             })
           )
-          if (!res.MembershipId)
+          if (!res.MembershipId) {
             throw new Error(
               `Failed to add IdentityStore member ${user.username} in group ${group.displayName}`
             )
+          }
           membershipId = res.MembershipId
         }
       })

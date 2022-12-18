@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "bootstrap": "tsx bootstrap.ts"
+    "bootstrap": "tsx cmds/bootstrap.ts",
+    "sync-sso-directory": "tsx cmds/sync-sso-directory.ts",
+    "org-formation:init": "org-formation init .organization.yml --region us-west-2",
+    "org-formation:update": "org-formation update organization.yml"
   },
   "devDependencies": {
     "sst": "snapshot",
