@@ -11,6 +11,18 @@ export const isRootAccount = (accountId: string) =>
   accountId !== AwsConfig.accounts.root.id
 
 /**
+ * Get aws account details by id
+ * @param accountId aws account id
+ */
+export const getAccount = (accountId: string) => {
+  const account = Object.values(AwsConfig.accounts).find(
+    (a) => a.id === accountId
+  )
+  if (!account) throw new Error(`Unrecognized account id ${accountId}`)
+  return account
+}
+
+/**
  * Join Route53 Hosted Zone name
  * @param accountId aws account id
  * @param sub subdomain
