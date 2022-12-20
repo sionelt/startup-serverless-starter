@@ -18,7 +18,7 @@ import {AwsConfig, SsoGroup, SsoUser} from '../../../aws.config'
 const argv = yargs(process.argv)
   .option('identity-store-id', {
     type: 'string',
-    describe: 'SSO/IdentityStore ID',
+    describe: 'SSO/Identity Store ID',
   })
   .help()
   .parseSync()
@@ -40,7 +40,7 @@ export async function syncSso({identityStoreId}: typeof argv) {
 
   const groups = await syncGroups(identityStoreId)
   const users = await syncUsers(identityStoreId)
-  await syncUsersToGroup(identityStoreId, groups, users)
+  await syncUsersToGroups(identityStoreId, groups, users)
 }
 
 async function syncGroups(
@@ -49,13 +49,12 @@ async function syncGroups(
   const {Groups: existingGroups = []} = await isClient.send(
     new ListGroupsCommand({IdentityStoreId})
   )
+  const groupList = Object.values(AwsConfig.sso.groups)
 
   // Remove groups not found
   await Promise.all(
     existingGroups
-      .filter((eg) =>
-        AwsConfig.sso.groups.some((name) => name !== eg.DisplayName)
-      )
+      .filter((eg) => groupList.some((name) => name !== eg.DisplayName))
       .map(async (eg) =>
         isClient.send(
           new DeleteGroupCommand({IdentityStoreId, GroupId: eg.GroupId})
@@ -65,7 +64,7 @@ async function syncGroups(
 
   // Create new groups
   return Promise.all(
-    AwsConfig.sso.groups.map(async (displayName) => {
+    groupList.map(async (displayName) => {
       const matched = existingGroups.find((g) => g.DisplayName == displayName)
       let groupId = matched?.GroupId
 
@@ -78,7 +77,9 @@ async function syncGroups(
           })
         )
         if (!res.GroupId) {
-          throw new Error(`Failed to create IdentityStore group ${displayName}`)
+          throw new Error(
+            `Failed to create IdentityStore group '${displayName}'`
+          )
         }
         groupId = res.GroupId
       }
@@ -138,7 +139,7 @@ async function syncUsers(
           })
         )
         if (!res.UserId) {
-          throw new Error(`Failed to create IdentityStore user ${u.username}`)
+          throw new Error(`Failed to create IdentityStore user '${u.username}'`)
         }
         userId = res.UserId
       }
@@ -148,7 +149,7 @@ async function syncUsers(
   )
 }
 
-async function syncUsersToGroup(
+async function syncUsersToGroups(
   IdentityStoreId: string,
   groups: IdentiyStoreGroup[],
   users: IdentityStoreUser[]
@@ -163,7 +164,7 @@ async function syncUsersToGroup(
           })
         )
         const matchedUser = users.find((u) => u.username === user.username)
-        if (!matchedUser) throw new Error(`User ${user.username} not found`)
+        if (!matchedUser) throw new Error(`User '${user.username}' not found`)
 
         const matchedMember = existingMembers.find(
           (m) => m.MemberId?.UserId === matchedUser.userId
@@ -180,7 +181,7 @@ async function syncUsersToGroup(
           )
           if (!res.MembershipId) {
             throw new Error(
-              `Failed to add IdentityStore member ${user.username} in group ${group.displayName}`
+              `Failed to add IdentityStore member '${user.username}' in group '${group.displayName}'`
             )
           }
           membershipId = res.MembershipId

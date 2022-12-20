@@ -1,3 +1,11 @@
+const Regions = {
+  usWest2: 'us-west-2',
+  usEast2: 'us-east-2',
+  usEast1: 'us-east-1',
+} as const
+
+const Groups = {admin: 'admin', developer: 'developer'} as const
+
 const Users: SsoUsers = {
   michael: {
     username: 'michael',
@@ -40,33 +48,32 @@ export const AwsConfig = {
   },
   /** AWS regions chosen to support & deploy in */
   regions: {
-    main: 'us-west-2',
-    usEast1: 'us-east-1',
-    support: {
-      usWest2: 'us-west-2',
-      usEast2: 'us-east-2',
-    },
+    main: Regions.usWest2,
+    usEast1: Regions.usEast1,
+    support: {usWest2: Regions.usWest2, usEast2: Regions.usEast2},
   },
   /** Deployed stages */
   stages: {
-    main: {
-      prod: 'prod',
-      dev: 'dev',
-    },
+    main: {prod: 'prod', dev: 'dev'},
     bootstrap: {
       organization: 'organization',
       account: 'account',
       region: 'region',
     },
   },
-  /** SSO/Identity Source config */
+  /** SSO/Identity Store config */
   sso: {
-    groups: ['admin', 'developer', 'readOnly'],
+    instanceArn: '',
+    groups: Groups,
+    // TODO: Add group ids once groups are created with `sync-sso-directroy` cmd
+    groupIds: {
+      [Groups.admin]: '',
+      [Groups.developer]: '',
+    },
     users: {
       all: Object.values(Users),
-      admin: [Users.michael],
-      developer: [Users.sadiq],
-      readOnly: [Users.dwight],
+      [Groups.admin]: [Users.michael],
+      [Groups.developer]: [Users.sadiq, Users.dwight],
     },
   },
   /** DNS config */
@@ -74,19 +81,25 @@ export const AwsConfig = {
     apex: 'theoffice.io',
     mailFrom: 'mail.theoffice.io',
     subdomains: ['app', 'api', 'auth', 'cdn'],
-    /** IAM role to authorize delegating subdomains across accounts from root account. */
+    // IAM role to authorize delegating subdomains across accounts from root account.
     crossAccountDelegationRole: 'DomainCrossAccountDelegationRole',
+    // TODO: Add tokens from Ses stack's CNAME outputs, once its bootstrap in each supported region.*/
+    dkimTokensByRegion: {
+      [Regions.usWest2]: [],
+      [Regions.usEast2]: [],
+    },
   },
   /** CDN config */
   cdn: {
     publicDir: 'public',
-    publicKey: '', //TODO: Generate pub & private keys for CDN
+    // TODO: Generate pub & private keys for CDN
+    publicKey: '',
   },
 } as const
 
 export type MainStage = keyof typeof AwsConfig['stages']['main']
 export type SubDomain = typeof AwsConfig['dns']['subdomains'][number]
-export type SsoGroup = typeof AwsConfig['sso']['groups'][number]
+export type SsoGroup = keyof typeof AwsConfig['sso']['groups']
 export type SsoUser = {
   username: string
   email: string
