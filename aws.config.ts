@@ -33,17 +33,20 @@ export const AwsConfig = {
     root: {
       id: '917902212075',
       name: 'The Office Root',
-      email: 'f3i5y0h1s4q9e9l1@acme.slack.com',
+      email: 'f3i5y0h1s4q9e9l1@theoffice.slack.com',
+      budget: 10,
     },
     production: {
       id: '314140113027',
       name: 'The Office Production',
-      email: 't9r9n7l1k5i9h4f5@acme.slack.com',
+      email: 't9r9n7l1k5i9h4f5@theoffice.slack.com',
+      budget: 50,
     },
     development: {
       id: '098903104447',
       name: 'The Office Development',
-      email: 'f2s8i2d0z8n6j5n2@acme.slack.com',
+      email: 'f2s8i2d0z8n6j5n2@theoffice.slack.com',
+      budget: 20,
     },
   },
   /** AWS regions chosen to support & deploy in */
