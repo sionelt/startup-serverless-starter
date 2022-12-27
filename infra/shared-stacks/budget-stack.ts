@@ -1,6 +1,6 @@
 import {aws_budgets} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsUtils} from '../../../aws.utils'
+import {AwsUtils} from '../utils'
 
 /**
  * Account budgets.

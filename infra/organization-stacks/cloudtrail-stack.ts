@@ -1,6 +1,6 @@
 import {aws_cloudtrail} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {getCdkLogRetention} from '../../../aws.utils'
+import {getCdkLogRetention} from '../utils'
 
 /**
  * Create Cloudtrail for all accounts in the organization.

@@ -1,7 +1,7 @@
 import {aws_logs} from 'aws-cdk-lib'
-import {AwsConfig, MainStage, SubDomain} from './aws.config'
+import {AwsConfig, MainStage, Subdomain} from './config'
 
-export * as AwsUtils from './aws.utils'
+export * as AwsUtils from './utils'
 
 /**
  * Is aws account root
@@ -27,7 +27,7 @@ export const getAccount = (accountId: string) => {
  * @param accountId aws account id
  * @param sub subdomain
  */
-export const joinHostedZone = (accountId: string, sub: SubDomain) => {
+export const joinHostedZone = (accountId: string, sub: Subdomain) => {
   const domain = `${sub}.${AwsConfig.dns.apex}`
 
   switch (accountId) {
@@ -49,7 +49,7 @@ export const joinHostedZone = (accountId: string, sub: SubDomain) => {
 export const joinDomainName = (
   accountId: string,
   stage: unknown,
-  sub: Exclude<SubDomain, 'cdn'>
+  sub: Subdomain
 ) => {
   const hostedZoneAsDomainName = joinHostedZone(accountId, sub)
 
@@ -77,3 +77,15 @@ export const getCdkLogRetention = (stage: unknown): aws_logs.RetentionDays => {
       return aws_logs.RetentionDays.ONE_WEEK
   }
 }
+
+/**
+ * Join SSM parameter name created with SST Config
+ * @param app app name
+ * @param stage deployed stage name
+ * @param name name of the ssm parameter
+ */
+export const joinSsmParameterName = (
+  app: string,
+  stage: string,
+  name: string
+) => `/sst/${app}/${stage}/parameters/${name}`

@@ -1,6 +1,6 @@
 import {aws_sso} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../../../aws.config'
+import {AwsConfig} from '../config'
 
 /**
  * Create permission sets for SSO directory.

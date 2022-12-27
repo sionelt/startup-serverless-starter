@@ -1,11 +1,11 @@
 import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../../../aws.config'
+import {AwsConfig} from '../config'
 
 /**
- * Create DNS infra in Root Account
+ * Create DNS infra for apex domain in Root Account
  */
-export function DnsRoot({stack}: StackContext) {
+export function ApexDns({stack}: StackContext) {
   const {accounts, dns, regions} = AwsConfig
 
   const apexZone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
@@ -21,7 +21,7 @@ export function DnsRoot({stack}: StackContext) {
    * @file ./ses-stack.ts
    */
 
-  for (const region of Object.values(regions.support)) {
+  for (const region of Object.values(regions.supporting)) {
     dns.dkimTokensByRegion[region].forEach((token, i) => {
       new aws_route53.CnameRecord(stack, `DkimCnameRecord${region}${i}`, {
         zone: apexZone,

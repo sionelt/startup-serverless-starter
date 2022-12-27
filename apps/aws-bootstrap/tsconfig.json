@@ -1,4 +1,0 @@
-{
-  "extends": "../../tsconfig.base.json",
-  "include": ["stacks", "../../aws.config.ts", "cmds"]
-}

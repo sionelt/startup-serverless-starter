@@ -1,6 +1,12 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["stacks", "aws.config.ts", "aws.utils.ts", "vitest.config.ts"],
+  "include": [
+    "infra",
+    "commands",
+    "infra/config.ts",
+    "infra/utils.ts",
+    "vitest.config.ts"
+  ],
   "compilerOptions": {
     "types": ["vitest/globals"]
   }

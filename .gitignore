@@ -1,9 +1,10 @@
 # dependencies
 node_modules
 
-# sst
+# sst/infra
 .sst
 .build
+.organization.yml
 
 # misc
 .DS_Store

@@ -2,16 +2,18 @@
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "start": {
-      "dependsOn": ["$IS_LOCAL"],
+      "env": ["IS_LOCAL"],
       "outputs": [".build/**", ".sst/**"]
+    },
+    "deploy": {
+      "env": ["API_SECRET_ROUTE"]
+    },
+    "infra:bootstrap": {
+      "env": ["GITHUB_REPOSITORY"]
     },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**"]
-    },
-    "packages/aws-bootstrap#bootstrap": {
-      "dependsOn": ["$GITHUB_REPOSITORY"],
-      "outputs": []
     }
   }
 }

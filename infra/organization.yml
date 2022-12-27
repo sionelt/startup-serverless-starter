@@ -24,7 +24,7 @@ Organization:
     Type: OC::ORG::MasterAccount
     Properties:
       AccountName: TheOffice Root
-      RootEmail: f3i5y0h1s4q9e9l1@acme.slack.com
+      RootEmail: f3i5y0h1s4q9e9l1@theoffice.slack.com
       AccountId: '917902212075'
       Alias: the-office-root
 
@@ -32,7 +32,7 @@ Organization:
     Type: OC::ORG::Account
     Properties:
       AccountName: TheOffice Development
-      RootEmail: t9r9n7l1k5i9h4f5@acme.slack.com
+      RootEmail: t9r9n7l1k5i9h4f5@theoffice.slack.com
       Alias: the-office-dev
       PasswordPolicy: !Ref PasswordPolicy
 
@@ -40,7 +40,7 @@ Organization:
     Type: OC::ORG::Account
     Properties:
       AccountName: TheOffice Production
-      RootEmail: f2s8i2d0z8n6j5n2@acme.slack.com
+      RootEmail: f2s8i2d0z8n6j5n2@theoffice.slack.com
       Alias: the-office-prod
       PasswordPolicy: !Ref PasswordPolicy
       ServiceControlPolicies:

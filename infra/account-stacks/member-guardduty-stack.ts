@@ -6,15 +6,15 @@ import {
   aws_sns_subscriptions,
 } from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../../../aws.config'
-import {AwsUtils} from '../../../aws.utils'
+import {AwsConfig} from '../config'
+import {AwsUtils} from '../utils'
 
 /**
- * Create GuardDuty per account for threat detection & monitoring
+ * Create member GuardDuty per account for threat detection & monitoring
  * @link https://dev.to/aws-heroes/centralising-audit-compliance-and-incident-detection-11fi
  * @link https://github.com/aws-samples/aws-cdk-intro-workshop/blob/master/cdkworkshop.com/guardduty.ts
  */
-export function GuarddutyAccount({stack}: StackContext) {
+export function MemberGuardduty({stack}: StackContext) {
   const detector = new aws_guardduty.CfnDetector(stack, 'Detector', {
     enable: true,
     findingPublishingFrequency: 'FIFTEEN_MINUTES',

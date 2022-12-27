@@ -1,24 +1,15 @@
 import {ArnFormat, Duration, aws_iam} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
+import {AwsConfig} from '../config'
 
 /**
- * Create OpenID Connect provider in IAM for Github OpenID Connect.
+ * Create OpenID Connect provider for Github OpenID Connect in IAM.
  * Github OIDC provider will assume an IAM role with necessary permissions to access
  * AWS services from within Github Actions.
  * @link https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
  */
 export function GithubOidc({stack}: StackContext) {
   const domain = 'token.actions.githubusercontent.com'
-
-  /**
-   * GITHUB_REPOSITORY (owner/repo) already set in Github Actions envs
-   */
-  const githubRepository = process.env.GITHUB_REPOSITORY
-  if (!githubRepository) {
-    throw new Error(
-      `Env variable "GITHUB_REPOSITORY" is required to create Github OIDC provider in IAM`
-    )
-  }
 
   /**
    * Github as OIDC provider in IAM.
@@ -34,7 +25,7 @@ export function GithubOidc({stack}: StackContext) {
    */
   const principal = new aws_iam.OpenIdConnectPrincipal(provider, {
     StringLike: {
-      [`${domain}:sub`]: [`repo:${githubRepository}:*`],
+      [`${domain}:sub`]: [`repo:${AwsConfig.cicd.githubRepository}:*`],
     },
   })
 

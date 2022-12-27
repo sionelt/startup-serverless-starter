@@ -1,6 +1,6 @@
 import {aws_ses} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../../../aws.config'
+import {AwsConfig} from '../config'
 
 /**
  * Configure SES with verified domain & metrics

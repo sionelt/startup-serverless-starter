@@ -9,14 +9,18 @@
     "deploy": "sst deploy",
     "remove": "sst remove",
     "console": "sst console",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky install",
+    "infra:bootstrap": "tsx commands/bootstrap-infra.ts",
+    "infra:sync-sso": "tsx commands/sync-sso-directory.ts",
+    "infra:org-init": "org-formation init infra/.organization.yml --region us-west-2",
+    "infra:org-update": "org-formation update infra/organization.yml",
+    "db:gen": "prisma generate",
+    "db:mig": "prisma db push --skip-generate --accept-data-loss",
     "prettier": "prettier --ignore-path .gitignore \"**/*/*.{ts,js,json,md,prisma}\"",
-    "format": "pnpm prettier --write",
-    "check:format": "pnpm prettier --list-different",
+    "check:format": "pnpm prettier --write --list-different",
     "check:lint": "eslint --ignore-path .gitignore --ext .ts .",
     "check:type": "tsc --noEmit",
-    "check:ci": "concurrently -n type,format,lint \"yarn check:type\" \"yarn check:format\" \"yarn check:lint\""
+    "check:ci": "concurrently -n type,format,lint \"pnpm check:type\" \"pnpm check:format\" \"pnpm check:lint\"",
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=16.17.0",
@@ -33,33 +37,41 @@
       "prettier --write",
       "eslint --fix"
     ],
-    "*.{json,md}": [
+    "*.{json,md,prisma}": [
       "prettier --write"
     ],
-    "apps/backend/schema.prisma": [
+    "database/schema.prisma": [
       "prisma format"
     ]
   },
+  "prisma": {
+    "schema": "database/schema.prisma",
+    "seed": "tsx database/seed.ts"
+  },
   "devDependencies": {
+    "@aws-sdk/client-identitystore": "^3.231.0",
     "@tsconfig/node18": "^1.0.1",
     "@types/lodash-es": "^4.17.6",
     "@types/yargs": "^17.0.17",
     "aws-cdk-lib": "2.50.0",
+    "aws-organization-formation": "^1.0.4",
     "concurrently": "^7.6.0",
     "constructs": "10.1.156",
     "execa": "^6.1.0",
     "husky": "^8.0.0",
     "lint-staged": "^13.1.0",
+    "lodash-es": "^4.17.21",
     "prettier": "^2.7.1",
-    "prisma": "^4.7.1",
+    "prisma": "4.8.0",
     "sst": "snapshot",
     "tsx": "^3.12.1",
     "turbo": "^1.6.3",
+    "type-fest": "^3.4.0",
     "typescript": "^4.9.4",
     "vitest": "^0.25.7",
     "yargs": "^17.6.2"
   },
   "dependencies": {
-    "lodash-es": "^4.17.21"
+    "zod": "^3.20.2"
   }
 }

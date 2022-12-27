@@ -12,7 +12,7 @@ import {
   UpdateUserCommand,
 } from '@aws-sdk/client-identitystore'
 import yargs from 'yargs'
-import {AwsConfig, SsoGroup, SsoUser} from '../../../aws.config'
+import {AwsConfig, SsoGroup, SsoUser} from '../infra/config'
 
 /** Command Options */
 const argv = yargs(process.argv)
@@ -33,7 +33,7 @@ const isClient = new IdentitystoreClient({})
 /**
  * Sync SSO/Identity Center directory
  */
-export async function syncSso({identityStoreId}: typeof argv) {
+export async function syncSsoDirectory({identityStoreId}: typeof argv) {
   if (!identityStoreId) {
     throw new Error(`Argument '--identity-store-id' is required`)
   }

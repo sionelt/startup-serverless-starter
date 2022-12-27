@@ -1,3 +1,5 @@
+import {z} from 'zod'
+
 const Regions = {
   usWest2: 'us-west-2',
   usEast2: 'us-east-2',
@@ -27,6 +29,16 @@ const Users: SsoUsers = {
   },
 }
 
+const RequiredEnv = (name: string) =>
+  z
+    .string({
+      required_error: `${name} is required`,
+      invalid_type_error: `${name} is not of valid string`,
+    })
+    .min(0)
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    .parse(process.env[name])
+
 export const AwsConfig = {
   /** AWS organization's accounts */
   accounts: {
@@ -49,11 +61,11 @@ export const AwsConfig = {
       budget: 20,
     },
   },
-  /** AWS regions chosen to support & deploy in */
+  /** AWS regions chosen to support */
   regions: {
     main: Regions.usWest2,
     usEast1: Regions.usEast1,
-    support: {usWest2: Regions.usWest2, usEast2: Regions.usEast2},
+    supporting: {usWest2: Regions.usWest2, usEast2: Regions.usEast2},
   },
   /** Deployed stages */
   stages: {
@@ -82,11 +94,11 @@ export const AwsConfig = {
   /** DNS config */
   dns: {
     apex: 'theoffice.io',
+    subdomains: ['app', 'api'],
     mailFrom: 'mail.theoffice.io',
-    subdomains: ['app', 'api', 'auth', 'cdn'],
     // IAM role to authorize delegating subdomains across accounts from root account.
     crossAccountDelegationRole: 'DomainCrossAccountDelegationRole',
-    // TODO: Add tokens from Ses stack's CNAME outputs, once its bootstrap in each supported region.*/
+    // TODO: Add tokens from ses-stack's CNAME outputs, once its bootstrap in each supported region.*/
     dkimTokensByRegion: {
       [Regions.usWest2]: [],
       [Regions.usEast2]: [],
@@ -94,14 +106,19 @@ export const AwsConfig = {
   },
   /** CDN config */
   cdn: {
-    publicDir: 'public',
-    // TODO: Generate pub & private keys for CDN
+    wafWebAclArnName: 'WAF_WEB_ACL_ARN',
+    // TODO: Follow guide to generate key group: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront-readme.html#keygroup--publickey-api
     publicKey: '',
+  },
+  /** CICD config */
+  cicd: {
+    // GITHUB_REPOSITORY (owner/repo) already set in Github Actions envs
+    githubRepository: RequiredEnv('GITHUB_REPOSITORY'),
   },
 } as const
 
 export type MainStage = keyof typeof AwsConfig['stages']['main']
-export type SubDomain = typeof AwsConfig['dns']['subdomains'][number]
+export type Subdomain = typeof AwsConfig['dns']['subdomains'][number]
 export type SsoGroup = keyof typeof AwsConfig['sso']['groups']
 export type SsoUser = {
   username: string

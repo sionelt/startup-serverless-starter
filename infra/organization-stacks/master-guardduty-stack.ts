@@ -1,13 +1,13 @@
 import {aws_guardduty} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../../../aws.config'
-import {AwsUtils} from '../../../aws.utils'
+import {AwsConfig} from '../config'
+import {AwsUtils} from '../utils'
 
 /**
  * Create GuardDuty in root account as master for threat detection & monitoring
  * @link https://github.com/aws-samples/aws-cdk-intro-workshop/blob/master/cdkworkshop.com/guardduty.ts
  */
-export function GuarddutyRoot({stack}: StackContext) {
+export function MasterGuardduty({stack}: StackContext) {
   const detector = new aws_guardduty.CfnDetector(stack, 'Detector', {
     enable: true,
     findingPublishingFrequency: 'FIFTEEN_MINUTES',
