@@ -1,0 +1,19 @@
+import {AwsConfig} from 'infra/config'
+import {App} from 'sst/constructs'
+import {AwsUtils} from '../utils'
+import {Certificate} from './certificate-stack'
+import {Waf} from './waf-stack'
+
+/**
+ * Stacks to be deployed only in us-east-1 region in each of the member account
+ */
+export function cdnStacks(app: App) {
+  if (AwsUtils.isRootAccount(app.account)) {
+    throw new Error(`This infra should not be deployed into Root Account`)
+  }
+  if (app.region !== AwsConfig.regions.usEast1) {
+    throw new Error(`This infra should be deployed in us-east-1 region`)
+  }
+
+  app.stack(Waf).stack(Certificate)
+}

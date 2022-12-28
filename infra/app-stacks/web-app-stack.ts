@@ -9,20 +9,24 @@ export function WebApp({stack}: StackContext) {
   const api = use(Api)
   const cdn = use(Cdn)
   const dns = use(Dns)
-  const customDomain = dns.joinCustomDomain('app')
 
   /**
-   * Import WAF Web ACL's ARN created in waf-stack in us-east-1
+   * Import WAF Web ACL created in cdk-stacks/waf-stack.ts
    */
   const webAclArn = aws_ssm.StringParameter.valueFromLookup(
     stack,
-    AwsConfig.cdn.wafWebAclArnName
+    AwsConfig.cdn.wafWebAclArnSsmParameterName
   )
 
-  const site = new StaticSite(stack, 'WebApp', {
-    customDomain,
+  const app = new StaticSite(stack, 'WebApp', {
+    customDomain: {
+      hostedZone: dns.hostedZone('app'),
+      domainName: dns.domainName('app'),
+      domainAlias: `www.${dns.domainName('app')}`,
+      cdk: {certificate: dns.cdnCertificate},
+    },
     path: 'apps/web',
-    buildCommand: 'npm run build',
+    buildCommand: 'pnpm run build',
     environment: {
       VITE_API_URL: api.reverseProxyUrl,
       VITE_CDN_SECURE_URL: cdn.secureUrl,
@@ -40,10 +44,6 @@ export function WebApp({stack}: StackContext) {
   })
 
   stack.addOutputs({
-    SITE_URL: site.url,
+    WEB_APP_URL: app.url,
   })
-
-  return {
-    site,
-  }
 }

@@ -8,7 +8,7 @@ import {AwsUtils} from '../utils'
  * pointing to each subdomain's Hosted Zone in each account.
  * @link https://theburningmonk.com/2021/05/how-to-manage-route53-hosted-zones-in-a-multi-account-environment/
  */
-export function SubdomainDns({stack}: StackContext) {
+export function Subdomain({stack}: StackContext) {
   const delegationRoleArn = stack.formatArn({
     region: '',
     service: 'iam',
@@ -23,10 +23,11 @@ export function SubdomainDns({stack}: StackContext) {
   )
 
   for (const subdomain of AwsConfig.dns.subdomains) {
+    const zoneName = AwsUtils.joinHostedZone(stack.account, subdomain)
     const delegatedZone = new aws_route53.PublicHostedZone(
       stack,
       `${subdomain}HostedZone`,
-      {zoneName: AwsUtils.joinHostedZone(stack.account, subdomain)}
+      {zoneName}
     )
 
     new aws_route53.CrossAccountZoneDelegationRecord(

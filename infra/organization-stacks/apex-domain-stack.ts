@@ -5,10 +5,10 @@ import {AwsConfig} from '../config'
 /**
  * Create DNS infra for apex domain in Root Account
  */
-export function ApexDns({stack}: StackContext) {
+export function ApexDomain({stack}: StackContext) {
   const {accounts, dns, regions} = AwsConfig
 
-  const apexZone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
+  const zone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
     zoneName: dns.apex,
     crossAccountZoneDelegationRoleName: dns.crossAccountDelegationRole,
     crossAccountZoneDelegationPrincipal: new aws_iam.AccountPrincipal(
@@ -24,7 +24,7 @@ export function ApexDns({stack}: StackContext) {
   for (const region of Object.values(regions.supporting)) {
     dns.dkimTokensByRegion[region].forEach((token, i) => {
       new aws_route53.CnameRecord(stack, `DkimCnameRecord${region}${i}`, {
-        zone: apexZone,
+        zone,
         recordName: `${token}._domainkey.${dns.apex}`,
         domainName: `${token}.dkim.amazonses.com`,
         comment: `SES DKIM Verification for ${region}`,
@@ -32,7 +32,7 @@ export function ApexDns({stack}: StackContext) {
     })
 
     new aws_route53.MxRecord(stack, 'MailFromMxRecord', {
-      zone: apexZone,
+      zone,
       recordName: dns.apex,
       comment: `SES MAIL FROM Verification for ${region}`,
       values: [
@@ -45,7 +45,7 @@ export function ApexDns({stack}: StackContext) {
   }
 
   new aws_route53.TxtRecord(stack, 'MailFromTxtRecord', {
-    zone: apexZone,
+    zone,
     recordName: dns.apex,
     comment: 'SES MAIL FROM Verification',
     values: [`"v=spf1 include:amazonses.com ~all"`],

@@ -7,7 +7,7 @@ import {Notification} from './notification-stack'
 import {WebApp} from './web-app-stack'
 
 /**
- * Infra stacks to be deployed per stages of the app in each of the member account
+ * Stacks to be deployed per stages of the app in each of the member account
  */
 export function appStacks(app: App) {
   app.setDefaultFunctionProps({

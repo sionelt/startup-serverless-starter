@@ -74,6 +74,7 @@ export const AwsConfig = {
       organization: 'organization',
       account: 'account',
       region: 'region',
+      cdn: 'cdn',
     },
   },
   /** SSO/Identity Store config */
@@ -106,11 +107,16 @@ export const AwsConfig = {
   },
   /** CDN config */
   cdn: {
-    wafWebAclArnName: 'WAF_WEB_ACL_ARN',
+    wafWebAclArnSsmParameterName: '/cdn/waf/web_acl_arn',
+    certificateArnSsmParameterName: '/cdn/certificate_arn',
     // TODO: Follow guide to generate key group: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront-readme.html#keygroup--publickey-api
     publicKey: '',
   },
-  /** CICD config */
+  /** API config */
+  api: {
+    certificateArnSsmParameterName: '/api/certificate_arn',
+  },
+  /** CI/CD config */
   cicd: {
     // GITHUB_REPOSITORY (owner/repo) already set in Github Actions envs
     githubRepository: RequiredEnv('GITHUB_REPOSITORY'),

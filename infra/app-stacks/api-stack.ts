@@ -1,6 +1,5 @@
 import {
   Fn,
-  SecretValue,
   aws_cloudfront,
   aws_cloudfront_origins,
   aws_route53,
@@ -10,13 +9,17 @@ import {Dns} from './dns-stack'
 
 export function Api({stack}: StackContext) {
   const dns = use(Dns)
-  const customDomain = dns.joinCustomDomain('api')
-  const appCustomDomain = dns.joinCustomDomain('app')
-  const webAppUrl = `https://${appCustomDomain.domainName}`
+  const hostedZone = dns.hostedZone('api')
+  const domainName = dns.domainName('api')
+  const webAppUrl = `https://${dns.domainName('app')}`
 
   const prefixPath = 'api'
   const api = new ApiGateway(stack, 'Api', {
-    customDomain,
+    customDomain: {
+      hostedZone,
+      domainName,
+      cdk: {certificate: dns.apiCertificate},
+    },
     defaults: {
       function: {
         timeout: '29 seconds',
@@ -30,12 +33,23 @@ export function Api({stack}: StackContext) {
       allowOrigins: [webAppUrl, 'https://console.sst.dev'],
     },
     routes: {
+      'GET /health': 'health-check.main',
       [`GET /${prefixPath}/{proxy+}`]: 'server.main',
       [`POST /${prefixPath}/{proxy+}`]: 'server.main',
     },
   })
 
-  const healthCheck = new aws_route53.CfnHealthCheck(stack, 'health', {
+  if (!api.customDomainUrl) {
+    throw new Error(`Custom domain for API is required`)
+  }
+
+  /**
+   * Latency based-routing with health checks enables multi-region active-active.
+   * Api Gateway in each supporting regions routed to same domain by based on
+   * least latency to users and heath checks endpoints.
+   */
+
+  const healthCheck = new aws_route53.CfnHealthCheck(stack, 'Health', {
     healthCheckConfig: {
       type: 'HTTPS',
       port: 443,
@@ -46,15 +60,15 @@ export function Api({stack}: StackContext) {
   })
 
   const zone = aws_route53.HostedZone.fromLookup(stack, 'ImportedZone', {
-    domainName: customDomain.hostedZone,
+    domainName: hostedZone,
   })
   // strip protocol https off
   const dnsName = Fn.select(1, Fn.split('https://', api.url))
 
   new aws_route53.CfnRecordSet(stack, `${stack.region}RecordSet`, {
     type: 'A',
+    name: domainName,
     region: stack.region,
-    name: customDomain.domainName,
     hostedZoneId: zone.hostedZoneId,
     setIdentifier: `${stack.region}Api`,
     healthCheckId: healthCheck.attrHealthCheckId,
@@ -63,10 +77,6 @@ export function Api({stack}: StackContext) {
       hostedZoneId: zone.hostedZoneId,
     },
   })
-
-  if (!api.customDomainUrl) {
-    throw new Error(`Custom domain for API is required`)
-  }
 
   /**
    * Reverse proxy api from web app origin
@@ -80,11 +90,7 @@ export function Api({stack}: StackContext) {
   const reverseProxyBehaviors: aws_cloudfront.DistributionProps['additionalBehaviors'] =
     {
       [`${prefixPath}/*`]: {
-        origin: new aws_cloudfront_origins.HttpOrigin(reverseProxyOrigin, {
-          customHeaders: {
-            'x-origin-verify': SecretValue.ssmSecure('').unsafeUnwrap(),
-          },
-        }),
+        origin: new aws_cloudfront_origins.HttpOrigin(reverseProxyOrigin),
         allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_ALL,
         cachePolicy: aws_cloudfront.CachePolicy.CACHING_DISABLED,
         originRequestPolicy: aws_cloudfront.OriginRequestPolicy.ALL_VIEWER,

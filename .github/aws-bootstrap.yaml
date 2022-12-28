@@ -1,9 +1,9 @@
-name: AWS Infrastructure Bootstrap
+name: AWS Infra Bootstrap
 
 on:
   workflow_dispatch:
     inputs:
-      level:
+      stage:
         description: 'stage of bootstrap to perform'
         required: true
         type: choice
@@ -12,6 +12,7 @@ on:
           - organization
           - account
           - region
+          - cdn
       access_key_id:
         description: 'AWS Admin Access Key ID'
         required: true
@@ -19,13 +20,14 @@ on:
         description: 'AWS Admin Secret Access Key'
         required: true
       region:
-        description: 'AWS Region to deploy to'
+        description: 'AWS Region to deploy in'
         required: true
         type: choice
         default: us-west-2
         options:
           - us-west-2
           - us-east-2
+          - us-east-1 # for cdn stage only
 
 jobs:
   bootstrap:
@@ -46,4 +48,4 @@ jobs:
 
       - run: pnpm i
 
-      - run: pnpm infra:bootstrap --stage ${{ inputs.stage }}
+      - run: pnpm infra:bootstrap --stage ${{ inputs.stage }} --region ${{ input.region }}

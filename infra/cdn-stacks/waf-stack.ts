@@ -1,9 +1,9 @@
-import {aws_wafv2} from 'aws-cdk-lib'
+import {aws_ssm, aws_wafv2} from 'aws-cdk-lib'
 import {Config, StackContext} from 'sst/constructs'
 import {AwsConfig} from '../config'
 
 /**
- * Firewall protection
+ * Firewall protection for Cloudfront
  */
 export function Waf({stack, app}: StackContext) {
   /**
@@ -25,8 +25,9 @@ export function Waf({stack, app}: StackContext) {
    * Save ARN as parameter so we can retrieve it other regions where
    * the Cloudfront distribution is created.
    */
-  new Config.Parameter(stack, AwsConfig.cdn.wafWebAclArnName, {
-    value: waf.attrArn,
+  new aws_ssm.StringParameter(stack, 'WafWebAclArn', {
+    parameterName: AwsConfig.cdn.wafWebAclArnSsmParameterName,
+    stringValue: waf.attrArn,
   })
 }
 
