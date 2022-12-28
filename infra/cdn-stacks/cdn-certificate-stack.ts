@@ -7,7 +7,7 @@ import {AwsUtils} from '../utils'
  * Certificate required for Cloudfront HTTPS & custom domains.
  * Includes wildcard for subdomains so we only need a single certificate.
  */
-export function Certificate({stack}: StackContext) {
+export function CdnCertificate({stack}: StackContext) {
   const zoneName = AwsUtils.joinHostedZone(stack.account, 'app')
   const zone = aws_route53.HostedZone.fromLookup(stack, `HostedZone`, {
     domainName: zoneName,

@@ -79,6 +79,7 @@ export const AwsConfig = {
   },
   /** SSO/Identity Store config */
   sso: {
+    // TODO: Add instance ARN once SSO is enabled in Root account
     instanceArn: '',
     groups: Groups,
     // TODO: Add group ids once groups are created with `sync-sso-directroy` cmd

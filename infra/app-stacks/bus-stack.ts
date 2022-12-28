@@ -1,6 +1,6 @@
 import {SecretValue, aws_events} from 'aws-cdk-lib'
 import {Config, EventBus, Function, StackContext} from 'sst/constructs'
-import {DLQ} from '../constructs'
+import {DLQ} from '../constructs/queue'
 
 export function Bus({stack}: StackContext) {
   const bus = new EventBus(stack, 'Main')

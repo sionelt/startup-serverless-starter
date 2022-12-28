@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {execa} from 'execa'
 import yargs from 'yargs'
-import {AwsConfig} from '../infra/config'
+import {AwsConfig} from '../config'
 
 /** Command Options */
 const argv = yargs(process.argv)
@@ -12,7 +12,7 @@ const argv = yargs(process.argv)
   .help()
   .parseSync()
 
-async function boostrapInfra({stage}: typeof argv) {
+async function boostrap({stage}: typeof argv) {
   if (!stage) {
     throw new Error(`Argument '--stage' is required`)
   }
@@ -25,6 +25,6 @@ async function boostrapInfra({stage}: typeof argv) {
   await execa('pnpm', ['run', 'deploy', '--stage', stage], {stdio: 'inherit'})
 }
 
-boostrapInfra(argv).catch((error) => {
+boostrap(argv).catch((error) => {
   throw error
 })

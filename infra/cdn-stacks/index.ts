@@ -1,7 +1,7 @@
 import {AwsConfig} from 'infra/config'
 import {App} from 'sst/constructs'
 import {AwsUtils} from '../utils'
-import {Certificate} from './certificate-stack'
+import {CdnCertificate} from './cdn-certificate-stack'
 import {Waf} from './waf-stack'
 
 /**
@@ -15,5 +15,5 @@ export function cdnStacks(app: App) {
     throw new Error(`This infra should be deployed in us-east-1 region`)
   }
 
-  app.stack(Waf).stack(Certificate)
+  app.stack(Waf).stack(CdnCertificate)
 }

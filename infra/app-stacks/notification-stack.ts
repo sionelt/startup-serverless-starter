@@ -1,6 +1,6 @@
 import {aws_iam} from 'aws-cdk-lib'
 import {StackContext, use} from 'sst/constructs'
-import {EventApiDestinationFunction} from '../constructs'
+import {EventApiDestinationFunction} from '../constructs/event-target'
 import {Bus} from './bus-stack'
 
 export function Notification({stack}: StackContext) {

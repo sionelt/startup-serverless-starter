@@ -12,7 +12,7 @@ import {
   UpdateUserCommand,
 } from '@aws-sdk/client-identitystore'
 import yargs from 'yargs'
-import {AwsConfig, SsoGroup, SsoUser} from '../infra/config'
+import {AwsConfig, SsoGroup, SsoUser} from '../config'
 
 /** Command Options */
 const argv = yargs(process.argv)
@@ -22,13 +22,14 @@ const argv = yargs(process.argv)
   })
   .help()
   .parseSync()
+
+const isClient = new IdentitystoreClient({})
+
 type IdentiyStoreGroup = {
   groupId: string
   displayName: SsoGroup
 }
 type IdentityStoreUser = SsoUser & {userId: string}
-
-const isClient = new IdentitystoreClient({})
 
 /**
  * Sync SSO/Identity Center directory
