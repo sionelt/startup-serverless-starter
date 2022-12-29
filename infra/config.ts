@@ -58,7 +58,7 @@ export const AwsConfig = {
       id: '098903104447',
       name: 'The Office Development',
       email: 'f2s8i2d0z8n6j5n2@theoffice.slack.com',
-      budget: 20,
+      budget: 30,
     },
   },
   /** AWS regions chosen to support */
@@ -96,11 +96,18 @@ export const AwsConfig = {
   /** DNS config */
   dns: {
     apex: 'theoffice.io',
-    subdomains: ['app', 'api'],
+    subdomains: [
+      // web app
+      'app',
+      // app api reverse proxy on web app origin
+      'proxy',
+      // external api if needed
+      // 'api'
+    ],
     mailFrom: 'mail.theoffice.io',
     // IAM role to authorize delegating subdomains across accounts from root account.
     crossAccountDelegationRole: 'DomainCrossAccountDelegationRole',
-    // TODO: Add tokens from ses-stack's CNAME outputs, once its bootstrap in each supported region.*/
+    // TODO: Add tokens from region-stacks/ses-stack's CNAME outputs, once its bootstrap in each supported region.
     dkimTokensByRegion: {
       [Regions.usWest2]: [],
       [Regions.usEast2]: [],

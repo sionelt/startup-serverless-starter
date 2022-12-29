@@ -6,7 +6,7 @@ import {GithubOidc} from './github-oidc-stack'
 import {Subdomain} from './subdomain-stack'
 
 /**
- * Stacks to be deployed per member account of the organization
+ * Stacks to be deployed per member account
  */
 export function accountStacks(app: App) {
   if (AwsUtils.isRootAccount(app.account)) {

@@ -2,6 +2,9 @@ import {SecretValue, aws_events} from 'aws-cdk-lib'
 import {Config, EventBus, Function, StackContext} from 'sst/constructs'
 import {DLQ} from '../constructs/queue'
 
+/**
+ * Main Event Bus
+ */
 export function Bus({stack}: StackContext) {
   const bus = new EventBus(stack, 'Main')
   const dlq = DLQ(stack, 'Main')
@@ -20,7 +23,6 @@ export function Bus({stack}: StackContext) {
     'API_DESTINATION_CREDENTIALS',
     {value: '/bus/api_destination/credentials'}
   )
-
   const apiDestinationConnection = new aws_events.Connection(
     stack,
     'ApiDestinationTargetConnection',

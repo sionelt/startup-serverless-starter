@@ -4,6 +4,11 @@ import {AwsConfig} from '../config'
 
 /**
  * Create DNS infra for apex domain in Root Account
+ *
+ * #### Monthly Cost
+ * * Hosted Zone ($0.50) * 1   = $0.50
+ * * Requests ($0.40/million)  = $0
+ * ##### TOTAL                >= $0.50
  */
 export function ApexDomain({stack}: StackContext) {
   const {accounts, dns, regions} = AwsConfig

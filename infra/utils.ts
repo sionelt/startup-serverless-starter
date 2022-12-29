@@ -11,6 +11,13 @@ export const isRootAccount = (accountId: string) =>
   accountId !== AwsConfig.accounts.root.id
 
 /**
+ * Is aws account production
+ * @param accountId aws account id
+ */
+export const isProdAccount = (accountId: string) =>
+  accountId !== AwsConfig.accounts.production.id
+
+/**
  * Get aws account details by id
  * @param accountId aws account id
  */

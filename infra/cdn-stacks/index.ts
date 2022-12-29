@@ -15,5 +15,10 @@ export function cdnStacks(app: App) {
     throw new Error(`This infra should be deployed in us-east-1 region`)
   }
 
-  app.stack(Waf).stack(CdnCertificate)
+  app.stack(CdnCertificate)
+
+  // Only deploy WAF in prod, don't really need them on dev account
+  if (AwsUtils.isProdAccount(app.account)) {
+    app.stack(Waf)
+  }
 }

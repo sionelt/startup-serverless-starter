@@ -6,9 +6,12 @@ import {AwsUtils} from '../utils'
 /**
  * Certificate required for Api Gateway custom domains.
  * Includes wildcard for subdomains so we only need a single certificate.
+ *
+ * #### Monthly Cost
+ * * Free
  */
 export function ApiCertificate({stack}: StackContext) {
-  const zoneName = AwsUtils.joinHostedZone(stack.account, 'api')
+  const zoneName = AwsUtils.joinHostedZone(stack.account, 'proxy')
   const zone = aws_route53.HostedZone.fromLookup(stack, `HostedZone`, {
     domainName: zoneName,
   })

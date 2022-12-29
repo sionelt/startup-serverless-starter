@@ -1,5 +1,5 @@
 import {App} from 'sst/constructs'
-import {Api} from './api-stack'
+import {AppApi} from './app-api-stack'
 import {Bus} from './bus-stack'
 import {Cdn} from './cdn-stack'
 import {Database} from './database-stack'
@@ -37,6 +37,6 @@ export function appStacks(app: App) {
     .stack(Cdn)
     .stack(Database)
     .stack(Notification)
-    .stack(Api)
+    .stack(AppApi)
     .stack(WebApp)
 }

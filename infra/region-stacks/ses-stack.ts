@@ -4,6 +4,13 @@ import {AwsConfig} from '../config'
 
 /**
  * Configure SES with verified domain & metrics
+ *
+ * #### Monthly Cost
+ * * Outbound (First 62,000 free)    = $0
+ * * Outbound > 62,000 ($0.10/1,000) = $0
+ * * Inbound (First 1,000 free)      = $0
+ * * Inbound > 1,000 ($0.10/1,000)   = $0
+ * ##### TOTAL                      >= $0
  */
 export function Ses({stack}: StackContext) {
   /**

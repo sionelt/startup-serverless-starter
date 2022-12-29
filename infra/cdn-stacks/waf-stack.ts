@@ -1,9 +1,15 @@
 import {aws_ssm, aws_wafv2} from 'aws-cdk-lib'
-import {Config, StackContext} from 'sst/constructs'
+import {StackContext} from 'sst/constructs'
 import {AwsConfig} from '../config'
 
 /**
  * Firewall protection for Cloudfront
+ *
+ * #### Monthly Cost
+ * * Web ACL ($5) * 1         = $5
+ * * Rule ($1) * 5            = $5
+ * * Requests ($0.60/million) = $0
+ * ##### TOTAL               >= $10
  */
 export function Waf({stack, app}: StackContext) {
   /**
@@ -86,7 +92,7 @@ function rules() {
     },
     statement: {
       rateBasedStatement: {
-        limit: 600, // approx 2 RPS
+        limit: 15_000, // approx 5 RPS
         aggregateKeyType: 'IP',
       },
     },

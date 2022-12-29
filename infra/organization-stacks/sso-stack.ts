@@ -5,6 +5,9 @@ import {AwsConfig} from '../config'
 /**
  * Create permission sets for SSO directory.
  * @link Credit https://github.com/markilott/aws-cdk-sso-permission-sets
+ *
+ * #### Monthly Cost
+ * * Free
  */
 export function Sso({stack}: StackContext) {
   const {instanceArn} = AwsConfig.sso

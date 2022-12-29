@@ -7,6 +7,11 @@ import {AwsUtils} from '../utils'
  * Delegate subdomains cross account from the root account by creating NS record
  * pointing to each subdomain's Hosted Zone in each account.
  * @link https://theburningmonk.com/2021/05/how-to-manage-route53-hosted-zones-in-a-multi-account-environment/
+ *
+ * #### Monthly Cost
+ * * Hosted Zone ($0.50) * 4 (2 per account) = $2
+ * * Requests ($0.40/million)                = $0
+ * ##### TOTAL                              >= $2
  */
 export function Subdomain({stack}: StackContext) {
   const delegationRoleArn = stack.formatArn({

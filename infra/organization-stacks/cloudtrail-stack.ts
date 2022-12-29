@@ -5,6 +5,10 @@ import {getCdkLogRetention} from '../utils'
 /**
  * Create Cloudtrail for all accounts in the organization.
  * @link https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
+ *
+ * #### Monthly Cost
+ * * Management events (First copy free) = $0
+ * ##### TOTAL                          >= $0
  */
 export function Cloudtrail({stack}: StackContext) {
   const cloudtrail = new aws_cloudtrail.Trail(stack, 'Cloudtrail', {

@@ -10,6 +10,11 @@ import {Dns} from './dns-stack'
 
 export function Cdn({stack, app}: StackContext) {
   const dns = use(Dns)
+  const securePath = 'secure'
+  const publicPath = 'public'
+  const appDomainName = dns.domainName('app')
+  const secureUrl = `${appDomainName}/${securePath}`
+  const publicUrl = `${appDomainName}/${securePath}`
 
   /**
    * Uploads/Access to Bucket can only be done via CDN.
@@ -25,13 +30,6 @@ export function Cdn({stack, app}: StackContext) {
         versioned: true,
         encryption: aws_s3.BucketEncryption.KMS_MANAGED,
         blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
-        cors: [
-          {
-            allowedOrigins: ['*'],
-            allowedHeaders: ['*'],
-            allowedMethods: [aws_s3.HttpMethods.PUT],
-          },
-        ],
       },
     },
   })
@@ -47,12 +45,6 @@ export function Cdn({stack, app}: StackContext) {
     items: [publicKey],
   })
 
-  const securePath = 'secure'
-  const publicPath = 'public'
-  const {domainName} = dns.joinCustomDomain('app')
-  const secureUrl = `${domainName}/${securePath}`
-  const publicUrl = `${domainName}/${securePath}`
-
   const behaviors: aws_cloudfront.DistributionProps['additionalBehaviors'] = {
     /**
      * Behavior for private assets requires URLs to be signed with a key group.
@@ -63,7 +55,7 @@ export function Cdn({stack, app}: StackContext) {
     [`${securePath}/*`]: {
       trustedKeyGroups: [keyGroup],
       origin: new aws_cloudfront_origins.S3Origin(bucket.cdk.bucket),
-      allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+      allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_ALL,
       originRequestPolicy: aws_cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
       viewerProtocolPolicy: aws_cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
     },
@@ -91,8 +83,8 @@ export function Cdn({stack, app}: StackContext) {
   })
 
   return {
-    secureUrl,
-    publicUrl,
+    securePath,
+    publicPath,
     behaviors,
   }
 }

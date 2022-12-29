@@ -7,14 +7,14 @@ import {
 import {Api as ApiGateway, Config, StackContext, use} from 'sst/constructs'
 import {Dns} from './dns-stack'
 
-export function Api({stack}: StackContext) {
+export function AppApi({stack, app}: StackContext) {
   const dns = use(Dns)
-  const hostedZone = dns.hostedZone('api')
-  const domainName = dns.domainName('api')
+  const prefixPath = 'api'
+  const hostedZone = dns.hostedZone('proxy')
+  const domainName = dns.domainName('proxy')
   const webAppUrl = `https://${dns.domainName('app')}`
 
-  const prefixPath = 'api'
-  const api = new ApiGateway(stack, 'Api', {
+  const api = new ApiGateway(stack, 'AppApi', {
     customDomain: {
       hostedZone,
       domainName,
@@ -26,12 +26,15 @@ export function Api({stack}: StackContext) {
         bind: [new Config.Parameter(stack, 'WEB_APP_URL', {value: webAppUrl})],
       },
     },
-    cors: {
-      allowCredentials: true,
-      allowHeaders: ['*'],
-      allowMethods: ['ANY'],
-      allowOrigins: [webAppUrl, 'https://console.sst.dev'],
-    },
+    // Allow only for SST console in local dev else app uses reverse proxy
+    cors: app.local
+      ? {
+          allowCredentials: true,
+          allowHeaders: ['*'],
+          allowMethods: ['ANY'],
+          allowOrigins: ['https://console.sst.dev'],
+        }
+      : false,
     routes: {
       'GET /health': 'health-check.main',
       [`GET /${prefixPath}/{proxy+}`]: 'server.main',
@@ -45,16 +48,16 @@ export function Api({stack}: StackContext) {
 
   /**
    * Latency based-routing with health checks enables multi-region active-active.
-   * Api Gateway in each supporting regions routed to same domain by based on
+   * Api Gateway in each supporting regions routed to same domain based on
    * least latency to users and heath checks endpoints.
    */
 
-  const healthCheck = new aws_route53.CfnHealthCheck(stack, 'Health', {
+  const healthCheck = new aws_route53.CfnHealthCheck(stack, 'HealthCheck', {
     healthCheckConfig: {
       type: 'HTTPS',
       port: 443,
       requestInterval: 30, // seconds
-      resourcePath: `/health`,
+      resourcePath: '/health',
       fullyQualifiedDomainName: api.url,
     },
   })
@@ -82,7 +85,6 @@ export function Api({stack}: StackContext) {
    * Reverse proxy api from web app origin
    */
 
-  const reverseProxyUrl = `${webAppUrl}/${prefixPath}`
   const reverseProxyOrigin = `${api.customDomainUrl}/${prefixPath}`
     .split('https://')
     .pop() as string
@@ -101,12 +103,12 @@ export function Api({stack}: StackContext) {
     }
 
   stack.addOutputs({
-    ApiUrl: reverseProxyUrl,
+    ApiUrl: `${webAppUrl}/${prefixPath}`,
   })
 
   return {
     api,
-    reverseProxyUrl,
     reverseProxyBehaviors,
+    reverseProxyPath: prefixPath,
   }
 }
