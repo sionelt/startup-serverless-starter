@@ -5,7 +5,7 @@ import {AwsUtils} from '../utils'
 
 export function Dns({stack}: StackContext) {
   /**
-   * Import CDN Certificate created in cdn-stacks/certificate-stack.ts
+   * Import CDN Certificate created in cdn-stacks/cdn-certificate-stack.ts
    */
   const cdnCertificate = aws_certificatemanager.Certificate.fromCertificateArn(
     stack,
@@ -13,18 +13,8 @@ export function Dns({stack}: StackContext) {
     AwsConfig.cdn.certificateArnSsmParameterName
   )
 
-  /**
-   * Import API certificate created in region-stacks/api-certificate-stack.ts
-   */
-  const apiCertificate = aws_certificatemanager.Certificate.fromCertificateArn(
-    stack,
-    'ImportedApiCertificate',
-    AwsConfig.api.certificateArnSsmParameterName
-  )
-
   return {
     cdnCertificate,
-    apiCertificate,
     hostedZone: <S extends Subdomain>(sub: S) =>
       AwsUtils.joinHostedZone(stack.account, sub),
     domainName: <S extends Subdomain>(sub: S) =>

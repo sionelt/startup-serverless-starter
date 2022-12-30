@@ -163,12 +163,12 @@ Organization:
               - 'support:*'
               - 'route53:*'
               - 'cloudfront:*'
+              - 'wafv2:*'
             Resource: '*'
             Condition:
               StringNotEquals:
                 'aws:RequestedRegion':
                   - us-west-2
-                  - us-east-2
 
     RestrictKeyDeletionSCP:
       Type: OC::ORG::ServiceControlPolicy

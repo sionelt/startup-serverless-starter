@@ -2,7 +2,6 @@ import {z} from 'zod'
 
 const Regions = {
   usWest2: 'us-west-2',
-  usEast2: 'us-east-2',
   usEast1: 'us-east-1',
 } as const
 
@@ -65,7 +64,7 @@ export const AwsConfig = {
   regions: {
     main: Regions.usWest2,
     usEast1: Regions.usEast1,
-    supporting: {usWest2: Regions.usWest2, usEast2: Regions.usEast2},
+    supporting: {usWest2: Regions.usWest2},
   },
   /** Deployed stages */
   stages: {
@@ -99,8 +98,6 @@ export const AwsConfig = {
     subdomains: [
       // web app
       'app',
-      // app api reverse proxy on web app origin
-      'proxy',
       // external api if needed
       // 'api'
     ],
@@ -110,7 +107,6 @@ export const AwsConfig = {
     // TODO: Add tokens from region-stacks/ses-stack's CNAME outputs, once its bootstrap in each supported region.
     dkimTokensByRegion: {
       [Regions.usWest2]: [],
-      [Regions.usEast2]: [],
     },
   },
   /** CDN config */

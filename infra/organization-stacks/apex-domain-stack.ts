@@ -23,7 +23,7 @@ export function ApexDomain({stack}: StackContext) {
 
   /**
    * Add records for SES Domain Identity & MAIL FROM verfications
-   * @file ./ses-stack.ts
+   * @file region-stacks/ses-stack.ts
    */
 
   for (const region of Object.values(regions.supporting)) {

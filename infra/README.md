@@ -7,12 +7,11 @@ Bootstrap AWS Organization & Accounts with necessary infrastuctures.
 3. Enable AWS SSO
 4. Run command `pnpm sync-sso-directory` to create SSO groups & users
 5. Run Github Actions `aws-bootstrap` workflow with:
-   1. stage `organization` in
+   1. stage `organization` in:
       - us-west-2
-   2. stage `account` in
+   2. stage `account` in:
       - us-west-2
    3. stage `region` in:
       - us-west-2
-      - us-east-2
    4. stage `cdn` in:
       - us-east-1

@@ -11,7 +11,7 @@ export function Bus({stack}: StackContext) {
 
   new Function(stack, 'PublishEvents', {
     bind: [dlq, bus],
-    handler: 'use-cases/publish-events.main',
+    handler: 'publish-events.main',
   })
 
   /**
