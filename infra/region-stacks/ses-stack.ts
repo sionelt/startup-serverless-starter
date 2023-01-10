@@ -1,6 +1,6 @@
 import {aws_ses} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 /**
  * Configure SES with verified domain & metrics
@@ -59,7 +59,7 @@ export function Ses({stack}: StackContext) {
           dimensionConfigurations: [
             {
               dimensionName: 'ses:from-domain',
-              defaultDimensionValue: AwsConfig.dns.mailFrom,
+              defaultDimensionValue: InfraConfig.dns.mailFrom,
               dimensionValueSource: 'messageTag',
             },
           ],
@@ -73,8 +73,8 @@ export function Ses({stack}: StackContext) {
    * @link https://docs.aws.amazon.com/ses/latest/dg/send-email-authentication-dkim.html
    */
   const identity = new aws_ses.EmailIdentity(stack, 'Identity', {
-    identity: aws_ses.Identity.domain(AwsConfig.dns.apex),
-    mailFromDomain: AwsConfig.dns.mailFrom,
+    identity: aws_ses.Identity.domain(InfraConfig.dns.apex),
+    mailFromDomain: InfraConfig.dns.mailFrom,
     configurationSet,
   })
 
@@ -92,11 +92,11 @@ export function Ses({stack}: StackContext) {
   stack.addOutputs({
     MailFromDomainMxRecord: {
       description: `MAIL FROM domain MX Record`,
-      value: `Name=${AwsConfig.dns.apex} Value=feedback-smtp.${stack.region}.amazonses.com Priority=10`,
+      value: `Name=${InfraConfig.dns.apex} Value=feedback-smtp.${stack.region}.amazonses.com Priority=10`,
     },
     MailFromDomainTxtRecord: {
       description: `MAIL FROM domain TXT Record`,
-      value: `Name=${AwsConfig.dns.apex} Value="v=spf1 include:amazonses.com ~all"`,
+      value: `Name=${InfraConfig.dns.apex} Value="v=spf1 include:amazonses.com ~all"`,
     },
   })
 }

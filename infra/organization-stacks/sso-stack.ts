@@ -1,6 +1,6 @@
 import {aws_sso} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 /**
  * Create permission sets for SSO directory.
@@ -10,7 +10,7 @@ import {AwsConfig} from '../config'
  * * Free
  */
 export function Sso({stack}: StackContext) {
-  const {instanceArn} = AwsConfig.sso
+  const {instanceArn} = InfraConfig.sso
 
   /**
    * Add Permission sets
@@ -48,7 +48,7 @@ export function Sso({stack}: StackContext) {
             targetType: 'AWS_ACCOUNT',
             targetId: accountId,
             principalType: 'GROUP',
-            principalId: AwsConfig.sso.groupIds[group],
+            principalId: InfraConfig.sso.groupIds[group],
             permissionSetArn: permissionSet.attrPermissionSetArn,
           }
         )
@@ -57,7 +57,7 @@ export function Sso({stack}: StackContext) {
   }
 }
 
-const allAccountIds = Object.values(AwsConfig.accounts).map((a) => a.id)
+const allAccountIds = Object.values(InfraConfig.accounts).map((a) => a.id)
 
 /**
  * @link Managed Policies https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html
@@ -68,7 +68,7 @@ export const permisssionSets = () => [
     description: 'For admins',
     accounts: allAccountIds,
     sessionHours: 12,
-    groups: [AwsConfig.sso.groups.admin],
+    groups: [InfraConfig.sso.groups.admin],
     managedPolicies: [
       'arn:aws:iam::aws:policy/AdministratorAccess',
       'arn:aws:iam::aws:policy/job-function/Billing',
@@ -79,8 +79,8 @@ export const permisssionSets = () => [
     name: 'Developer',
     description: 'For developers access',
     sessionHours: 12,
-    accounts: [AwsConfig.accounts.development.id],
-    groups: [AwsConfig.sso.groups.developer],
+    accounts: [InfraConfig.accounts.development.id],
+    groups: [InfraConfig.sso.groups.developer],
     managedPolicies: ['arn:aws:iam::aws:policy/PowerUserAccess'],
     inlinePolicy: {},
   },
@@ -88,8 +88,8 @@ export const permisssionSets = () => [
     name: 'Production',
     description: 'Only allow Read access in Production',
     sessionHours: 4,
-    accounts: [AwsConfig.accounts.production.id],
-    groups: [AwsConfig.sso.groups.developer],
+    accounts: [InfraConfig.accounts.production.id],
+    groups: [InfraConfig.sso.groups.developer],
     managedPolicies: ['arn:aws:iam::aws:policy/ReadOnlyAccess'],
     inlinePolicy: {},
   },

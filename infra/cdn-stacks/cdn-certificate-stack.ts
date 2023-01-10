@@ -1,7 +1,7 @@
 import {aws_certificatemanager, aws_route53, aws_ssm} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
-import {AwsUtils} from '../utils'
+import {InfraConfig} from '../config'
+import {InfraUtils} from '../utils'
 
 /**
  * Certificate required for Cloudfront HTTPS & custom domains.
@@ -11,7 +11,7 @@ import {AwsUtils} from '../utils'
  * * Free
  */
 export function CdnCertificate({stack}: StackContext) {
-  const zoneName = AwsUtils.joinHostedZone(stack.account, 'app')
+  const zoneName = InfraUtils.joinHostedZone(stack.account, 'app')
   const zone = aws_route53.HostedZone.fromLookup(stack, `HostedZone`, {
     domainName: zoneName,
   })
@@ -31,7 +31,7 @@ export function CdnCertificate({stack}: StackContext) {
    * the Cloudfront distribution is created.
    */
   new aws_ssm.StringParameter(stack, 'CdnCertificateArn', {
-    parameterName: AwsConfig.cdn.certificateArnSsmParameterName,
+    parameterName: InfraConfig.cdn.certificateArnSsmParameterName,
     stringValue: certificate.certificateArn,
   })
 }

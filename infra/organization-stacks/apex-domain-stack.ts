@@ -1,6 +1,6 @@
 import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 /**
  * Create DNS infra for apex domain in Root Account
@@ -11,7 +11,7 @@ import {AwsConfig} from '../config'
  * ##### TOTAL                >= $0.50
  */
 export function ApexDomain({stack}: StackContext) {
-  const {accounts, dns, regions} = AwsConfig
+  const {accounts, dns, regions} = InfraConfig
 
   const zone = new aws_route53.PublicHostedZone(stack, 'HostedZone', {
     zoneName: dns.apex,

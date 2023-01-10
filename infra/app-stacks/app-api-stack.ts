@@ -1,5 +1,5 @@
 import {Fn, aws_cloudfront, aws_cloudfront_origins} from 'aws-cdk-lib'
-import {Api as ApiGateway, Config, StackContext, use} from 'sst/constructs'
+import {Api, Config, StackContext, use} from 'sst/constructs'
 import {Dns} from './dns-stack'
 
 export function AppApi({stack, app}: StackContext) {
@@ -7,7 +7,7 @@ export function AppApi({stack, app}: StackContext) {
   const prefixPath = 'api'
   const webAppUrl = `https://${dns.domainName('app')}`
 
-  const api = new ApiGateway(stack, 'AppApi', {
+  const api = new Api(stack, 'AppApi', {
     defaults: {
       function: {
         timeout: '29 seconds',

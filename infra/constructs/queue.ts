@@ -1,6 +1,6 @@
 import {Duration, Tags, aws_lambda_event_sources, aws_sqs} from 'aws-cdk-lib'
 import {Function, Queue as SstQueue, Stack} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 export const DLQ = (stack: Stack, id: string, props?: aws_sqs.QueueProps) => {
   const queueId = `${id}DLQ`
@@ -35,7 +35,7 @@ export const Queue = (
   }
 ) => {
   const queueId = `${id}Queue`
-  const isProd = stack.stage === AwsConfig.stages.main.prod
+  const isProd = stack.stage === InfraConfig.stages.app.prod
   const fnTimeout = consumer.timeout ?? Duration.seconds(10)
   const visibilityTimeout = Duration.seconds(
     fnTimeout.toSeconds() * (isProd ? 6 : 1)

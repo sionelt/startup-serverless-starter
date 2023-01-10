@@ -1,7 +1,7 @@
 import {aws_ssm} from 'aws-cdk-lib'
-import {AwsUtils} from 'infra/utils'
+import {InfraUtils} from 'infra/utils'
 import {StackContext, StaticSite, use} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 import {AppApi} from './app-api-stack'
 import {Cdn} from './cdn-stack'
 import {Dns} from './dns-stack'
@@ -12,7 +12,7 @@ export function WebApp({stack}: StackContext) {
   const api = use(AppApi)
   const hostedZone = dns.hostedZone('app')
   const domainName = dns.domainName('app')
-  const isProd = AwsUtils.isProdAccount(stack.account)
+  const isProd = InfraUtils.isProdAccount(stack.account)
 
   /**
    * Import WAF Web ACL created in cdk-stacks/waf-stack.ts
@@ -20,7 +20,7 @@ export function WebApp({stack}: StackContext) {
   const webAclArn = isProd
     ? aws_ssm.StringParameter.valueFromLookup(
         stack,
-        AwsConfig.cdn.wafWebAclArnSsmParameterName
+        InfraConfig.cdn.wafWebAclArnSsmParameterName
       )
     : undefined
 
@@ -28,7 +28,6 @@ export function WebApp({stack}: StackContext) {
     customDomain: {
       hostedZone,
       domainName,
-      domainAlias: `www.${domainName}`,
       cdk: {certificate: dns.cdnCertificate},
     },
     path: 'apps/web',

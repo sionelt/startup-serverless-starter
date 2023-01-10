@@ -5,7 +5,7 @@ import {
   aws_s3,
 } from 'aws-cdk-lib'
 import {Bucket, Config, StackContext, use} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 import {Dns} from './dns-stack'
 
 export function Cdn({stack, app}: StackContext) {
@@ -14,7 +14,7 @@ export function Cdn({stack, app}: StackContext) {
   const publicPath = 'public'
   const appDomainName = dns.domainName('app')
   const secureUrl = `${appDomainName}/${securePath}`
-  const publicUrl = `${appDomainName}/${securePath}`
+  const publicUrl = `${appDomainName}/${publicPath}`
 
   /**
    * Uploads/Access to Bucket can only be done via CDN.
@@ -39,7 +39,7 @@ export function Cdn({stack, app}: StackContext) {
    */
 
   const publicKey = new aws_cloudfront.PublicKey(stack, 'PublicKey', {
-    encodedKey: AwsConfig.cdn.publicKey,
+    encodedKey: InfraConfig.cdn.publicKey,
   })
   const keyGroup = new aws_cloudfront.KeyGroup(stack, 'KeyGroup', {
     items: [publicKey],

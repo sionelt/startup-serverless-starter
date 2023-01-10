@@ -1,13 +1,13 @@
 import {aws_budgets} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsUtils} from '../utils'
+import {InfraUtils} from '../utils'
 
 /**
  * Account budgets.
  * @link https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html
  */
 export function Budget({stack}: StackContext) {
-  const account = AwsUtils.getAccount(stack.account)
+  const account = InfraUtils.getAccount(stack.account)
 
   /** Monthly budget */
   new aws_budgets.CfnBudget(stack, 'MonthlyBudget', {

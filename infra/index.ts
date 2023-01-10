@@ -2,12 +2,12 @@ import {App} from 'sst/constructs'
 import {accountStacks} from './account-stacks'
 import {appStacks} from './app-stacks'
 import {cdnStacks} from './cdn-stacks'
-import {AwsConfig} from './config'
+import {InfraConfig} from './config'
 import {organizationStacks} from './organization-stacks'
 import {regionStacks} from './region-stacks'
 
 export default function (app: App) {
-  const {bootstrap} = AwsConfig.stages
+  const {bootstrap} = InfraConfig.stages
   switch (app.stage) {
     case bootstrap.organization:
       return organizationStacks(app)

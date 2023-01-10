@@ -1,28 +1,28 @@
 import {aws_logs} from 'aws-cdk-lib'
-import {AwsConfig, MainStage, Subdomain} from './config'
+import {AppStage, InfraConfig, Subdomain} from './config'
 
-export * as AwsUtils from './utils'
+export * as InfraUtils from './utils'
 
 /**
  * Is aws account root
  * @param accountId aws account id
  */
 export const isRootAccount = (accountId: string) =>
-  accountId !== AwsConfig.accounts.root.id
+  accountId !== InfraConfig.accounts.root.id
 
 /**
  * Is aws account production
  * @param accountId aws account id
  */
 export const isProdAccount = (accountId: string) =>
-  accountId !== AwsConfig.accounts.production.id
+  accountId !== InfraConfig.accounts.production.id
 
 /**
  * Get aws account details by id
  * @param accountId aws account id
  */
 export const getAccount = (accountId: string) => {
-  const account = Object.values(AwsConfig.accounts).find(
+  const account = Object.values(InfraConfig.accounts).find(
     (a) => a.id === accountId
   )
   if (!account) throw new Error(`Unrecognized account id ${accountId}`)
@@ -35,12 +35,12 @@ export const getAccount = (accountId: string) => {
  * @param sub subdomain
  */
 export const joinHostedZone = (accountId: string, sub: Subdomain) => {
-  const domain = `${sub}.${AwsConfig.dns.apex}`
+  const domain = `${sub}.${InfraConfig.dns.apex}`
 
   switch (accountId) {
-    case AwsConfig.accounts.production.id:
+    case InfraConfig.accounts.production.id:
       return domain
-    case AwsConfig.accounts.development.id:
+    case InfraConfig.accounts.development.id:
       return `dev-${domain}`
     default:
       throw new Error(`Unrecognized aws account: ${accountId}`)
@@ -60,7 +60,7 @@ export const joinDomainName = (
 ) => {
   const hostedZoneAsDomainName = joinHostedZone(accountId, sub)
 
-  switch (stage as MainStage) {
+  switch (stage as AppStage) {
     case 'prod':
     case 'dev':
       return hostedZoneAsDomainName
@@ -75,7 +75,7 @@ export const joinDomainName = (
  * @param stage deployed stage name
  */
 export const getCdkLogRetention = (stage: unknown): aws_logs.RetentionDays => {
-  switch (stage as MainStage) {
+  switch (stage as AppStage) {
     case 'prod':
       return aws_logs.RetentionDays.ONE_MONTH
     case 'dev':
@@ -86,13 +86,8 @@ export const getCdkLogRetention = (stage: unknown): aws_logs.RetentionDays => {
 }
 
 /**
- * Join SSM parameter name created with SST Config
- * @param app app name
- * @param stage deployed stage name
- * @param name name of the ssm parameter
+ * Prefix function's handler path with src path
+ * @param filePath file path
  */
-export const joinSsmParameterName = (
-  app: string,
-  stage: string,
-  name: string
-) => `/sst/${app}/${stage}/parameters/${name}`
+export const functionSrcPath = (filePath: string) =>
+  `/apps/backend/use-cases/${filePath}`

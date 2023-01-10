@@ -1,7 +1,7 @@
 import {aws_certificatemanager} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig, Subdomain} from '../config'
-import {AwsUtils} from '../utils'
+import {InfraConfig, Subdomain} from '../config'
+import {InfraUtils} from '../utils'
 
 export function Dns({stack}: StackContext) {
   /**
@@ -10,14 +10,14 @@ export function Dns({stack}: StackContext) {
   const cdnCertificate = aws_certificatemanager.Certificate.fromCertificateArn(
     stack,
     'ImportedCdnCertificate',
-    AwsConfig.cdn.certificateArnSsmParameterName
+    InfraConfig.cdn.certificateArnSsmParameterName
   )
 
   return {
     cdnCertificate,
     hostedZone: <S extends Subdomain>(sub: S) =>
-      AwsUtils.joinHostedZone(stack.account, sub),
+      InfraUtils.joinHostedZone(stack.account, sub),
     domainName: <S extends Subdomain>(sub: S) =>
-      AwsUtils.joinDomainName(stack.account, stack.stage, sub),
+      InfraUtils.joinDomainName(stack.account, stack.stage, sub),
   }
 }

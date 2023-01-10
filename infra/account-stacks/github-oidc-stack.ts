@@ -1,6 +1,6 @@
 import {ArnFormat, Duration, aws_iam} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 /**
  * Create OpenID Connect provider for Github OpenID Connect in IAM.
@@ -25,7 +25,7 @@ export function GithubOidc({stack}: StackContext) {
    */
   const principal = new aws_iam.OpenIdConnectPrincipal(provider, {
     StringLike: {
-      [`${domain}:sub`]: [`repo:${AwsConfig.cicd.githubRepository}:*`],
+      [`${domain}:sub`]: [`repo:${InfraConfig.cicd.githubRepository}:*`],
     },
   })
 

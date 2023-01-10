@@ -12,7 +12,7 @@ import {
   UpdateUserCommand,
 } from '@aws-sdk/client-identitystore'
 import yargs from 'yargs'
-import {AwsConfig, SsoGroup, SsoUser} from '../config'
+import {InfraConfig, SsoGroup, SsoUser} from '../config'
 
 /** Command Options */
 const argv = yargs(process.argv)
@@ -50,7 +50,7 @@ async function syncGroups(
   const {Groups: existingGroups = []} = await isClient.send(
     new ListGroupsCommand({IdentityStoreId})
   )
-  const groupList = Object.values(AwsConfig.sso.groups)
+  const groupList = Object.values(InfraConfig.sso.groups)
 
   // Remove groups not found
   await Promise.all(
@@ -101,7 +101,7 @@ async function syncUsers(
   await Promise.all(
     existingUsers
       .filter((eu) =>
-        AwsConfig.sso.users.all.some((u) => u.username !== eu.UserName)
+        InfraConfig.sso.users.all.some((u) => u.username !== eu.UserName)
       )
       .map(async (eu) =>
         isClient.send(
@@ -112,7 +112,7 @@ async function syncUsers(
 
   // Updated/Create users
   return Promise.all(
-    AwsConfig.sso.users.all.map(async (u) => {
+    InfraConfig.sso.users.all.map(async (u) => {
       const matched = existingUsers.find((eu) => eu.UserName === u.username)
       let userId = matched?.UserId
 
@@ -157,7 +157,7 @@ async function syncUsersToGroups(
 ) {
   groups.map(async (group) => {
     await Promise.all(
-      AwsConfig.sso.users[group.displayName].map(async (user) => {
+      InfraConfig.sso.users[group.displayName].map(async (user) => {
         const {GroupMemberships: existingMembers = []} = await isClient.send(
           new ListGroupMembershipsCommand({
             IdentityStoreId,

@@ -1,6 +1,6 @@
 import {aws_ssm, aws_wafv2} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
+import {InfraConfig} from '../config'
 
 /**
  * Firewall protection for Cloudfront
@@ -32,7 +32,7 @@ export function Waf({stack, app}: StackContext) {
    * the Cloudfront distribution is created.
    */
   new aws_ssm.StringParameter(stack, 'WafWebAclArn', {
-    parameterName: AwsConfig.cdn.wafWebAclArnSsmParameterName,
+    parameterName: InfraConfig.cdn.wafWebAclArnSsmParameterName,
     stringValue: waf.attrArn,
   })
 }

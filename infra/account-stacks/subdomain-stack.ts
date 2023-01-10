@@ -1,7 +1,7 @@
 import {aws_iam, aws_route53} from 'aws-cdk-lib'
 import {StackContext} from 'sst/constructs'
-import {AwsConfig} from '../config'
-import {AwsUtils} from '../utils'
+import {InfraConfig} from '../config'
+import {InfraUtils} from '../utils'
 
 /**
  * Delegate subdomains cross account from the root account by creating NS record
@@ -9,17 +9,17 @@ import {AwsUtils} from '../utils'
  * @link https://theburningmonk.com/2021/05/how-to-manage-route53-hosted-zones-in-a-multi-account-environment/
  *
  * #### Monthly Cost
- * * Hosted Zone ($0.50) * 4 (2 per account) = $2
+ * * Hosted Zone ($0.50) * 2 (1 per account) = $1
  * * Requests ($0.40/million)                = $0
- * ##### TOTAL                              >= $2
+ * ##### TOTAL                              >= $1
  */
 export function Subdomain({stack}: StackContext) {
   const delegationRoleArn = stack.formatArn({
     region: '',
     service: 'iam',
     resource: 'role',
-    account: AwsConfig.accounts.root.id,
-    resourceName: AwsConfig.dns.crossAccountDelegationRole,
+    account: InfraConfig.accounts.root.id,
+    resourceName: InfraConfig.dns.crossAccountDelegationRole,
   })
   const delegationRole = aws_iam.Role.fromRoleArn(
     stack,
@@ -27,8 +27,8 @@ export function Subdomain({stack}: StackContext) {
     delegationRoleArn
   )
 
-  for (const subdomain of AwsConfig.dns.subdomains) {
-    const zoneName = AwsUtils.joinHostedZone(stack.account, subdomain)
+  for (const subdomain of InfraConfig.dns.subdomains) {
+    const zoneName = InfraUtils.joinHostedZone(stack.account, subdomain)
     const delegatedZone = new aws_route53.PublicHostedZone(
       stack,
       `${subdomain}HostedZone`,
@@ -41,7 +41,7 @@ export function Subdomain({stack}: StackContext) {
       {
         delegationRole,
         delegatedZone,
-        parentHostedZoneName: AwsConfig.dns.apex,
+        parentHostedZoneName: InfraConfig.dns.apex,
       }
     )
   }

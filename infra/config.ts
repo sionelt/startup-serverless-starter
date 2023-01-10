@@ -5,6 +5,8 @@ const Regions = {
   usEast1: 'us-east-1',
 } as const
 
+const Stages = {prod: 'prod', dev: 'dev'} as const
+
 const Groups = {admin: 'admin', developer: 'developer'} as const
 
 const Users: SsoUsers = {
@@ -38,7 +40,7 @@ const RequiredEnv = (name: string) =>
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     .parse(process.env[name])
 
-export const AwsConfig = {
+export const InfraConfig = {
   /** AWS organization's accounts */
   accounts: {
     root: {
@@ -68,7 +70,7 @@ export const AwsConfig = {
   },
   /** Deployed stages */
   stages: {
-    main: {prod: 'prod', dev: 'dev'},
+    app: Stages,
     bootstrap: {
       organization: 'organization',
       account: 'account',
@@ -127,9 +129,9 @@ export const AwsConfig = {
   },
 } as const
 
-export type MainStage = keyof typeof AwsConfig['stages']['main']
-export type Subdomain = typeof AwsConfig['dns']['subdomains'][number]
-export type SsoGroup = keyof typeof AwsConfig['sso']['groups']
+export type AppStage = keyof typeof InfraConfig['stages']['app']
+export type Subdomain = typeof InfraConfig['dns']['subdomains'][number]
+export type SsoGroup = keyof typeof InfraConfig['sso']['groups']
 export type SsoUser = {
   username: string
   email: string
