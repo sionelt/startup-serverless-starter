@@ -26,19 +26,13 @@ on:
         default: us-west-2
         options:
           - us-west-2
-          - us-east-2
           - us-east-1 # for cdn stage only
 
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version-file: package.json
-          cache: pnpm
+      - uses: ./.github/actions/setup
 
       - uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -46,6 +40,4 @@ jobs:
           aws-access-key-id: ${{ inputs.access_key_id }}
           aws-secret-access-key: ${{ inputs.secret_access_key }}
 
-      - run: pnpm i
-
-      - run: pnpm infra:bootstrap --stage ${{ inputs.stage }} --region ${{ input.region }}
+      - run: pnpm run infra:bootstrap --stage ${{ inputs.stage }} --region ${{ input.region }}

@@ -1,0 +1,21 @@
+name: 'Checkout & setup'
+description: 'Checkout and setup repo'
+inputs:
+  checkout-fetch-depth:
+    description: 'Number of commits to fetch. 0 indicates all history for all branches and tags.'
+    required: false
+    default: 1
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: ${{ inputs.checkout-fetch-depth }}
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: package.json
+        cache: pnpm
+
+    - run: pnpm i

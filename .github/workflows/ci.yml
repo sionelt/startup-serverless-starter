@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  quality_checks:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup
+
+      - run: pnpm run check:ci
+
+  preview:
+    name: Create preview
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'Skip Preview') != 'false'
+    env:
+      STAGE: pr-${{ github.event.number }}
+    steps:
+      - uses: ./.github/actions/setup
+        with:
+          checkout-fetch-depth: 0
+
+      - name: Create database branch & deploy request
+        uses: mohsen1/planetscale-prisma-github-action/create@main
+        id: planetscale
+        with:
+          database: app
+          organization: theoffice
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          planetscale-service-token-id: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
+          planetscale-service-token: ${{ secrets.PLANETSCALE_SERVICE_TOKEN }}
+
+      - name: Push database schema changes
+        env:
+          DATABASE_URL: ${{ steps.planetscale.outputs.temporary-database-url }}
+        run: |
+          pnpm run db:push
+          pnpm run infra:secrets set DATABASE_URL $DATABASE_URL --stage $STAGE
+
+      - name: Deploy preview
+        uses: ./.github/actions/deploy
+        with:
+          stage: ${{ env.STAGE }}
+          aws-account-id: 098903104447
+
+  tests:
+    name: Run tests
+    runs-on: ubuntu-test
+    needs: preview
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+      fail-fast: false
+    env:
+      SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+    steps:
+      - uses: ./.github/actions/setup
+
+      - run: yarn test --shard $SHARD

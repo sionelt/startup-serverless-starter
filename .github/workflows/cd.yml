@@ -1,0 +1,69 @@
+name: Deployment
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency: # One deployment at a time
+  group: ${{ github.workflow }}
+
+jobs:
+  cleanup_preview:
+    name: Cleanup deployed preview
+    runs-on: ubuntu-latest
+    env:
+      STAGE: pr-${{ github.event.number }}
+    steps:
+      - uses: ./.github/actions/setup
+
+      - uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: us-west-2
+          role-duration-seconds: 900 # 15 mins
+          role-to-assume: arn:aws:iam::314140113027:role/GitHubActions
+
+      - run: |
+          pnpm run infra:remove --stage $STAGE
+          pnpm run infra:secrets remove DATABASE_URL --stage $STAGE
+
+  deploy_app:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == 'true'
+    permissions:
+      id-token: write
+      contents: read
+      deployments: write
+    steps:
+      - uses: bobheadxi/deployments@v1
+        id: start
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: prod
+
+      - uses: ./.github/actions/setup
+
+      - name: Merge database open deploy request
+        uses: mohsen1/planetscale-prisma-github-action/merge@main
+        with:
+          db-name: app
+          planetscale-org: theoffice
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          planetscale-service-token-id: ${{ secrets.PLANETSCALE_SERVICE_TOKEN_ID }}
+          planetscale-service-token: ${{ secrets.PLANETSCALE_SERVICE_TOKEN }}
+
+      - name: Deploy prod
+        uses: ./.github/actions/deploy
+        with:
+          stage: prod
+          aws-account-id: 314140113027
+
+      - uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          status: ${{ job.status }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: ${{ steps.start.outputs.env }}
+          deployment_id: ${{ steps.start.outputs.deployment_id }}

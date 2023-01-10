@@ -1,0 +1,24 @@
+name: 'Deploy App'
+description: 'Authorize and deploy app'
+inputs:
+  stage:
+    description: 'Deployed stage'
+    required: true
+  aws-account-id:
+    description: 'The account id of AWS account to deploy in'
+    required: true
+  role-duration-seconds:
+    description: 'Duration of the session, authorize by AWS to assumed role'
+    required: false
+    default: 900 # 15 mins
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-region: us-west-2
+        role-duration-seconds: ${{ inputs.role-duration-seconds }}
+        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/GitHubActions
+
+    - run: pnpm run deploy --stage ${{ inputs.stage }}
